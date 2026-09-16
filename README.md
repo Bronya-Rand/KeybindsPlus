@@ -11,5 +11,5 @@ Supported Keybinds:
 - Shortcuts
 - Chat*
 - Hotbars
-
-> * - Some features may be grayed out due to complexities or unavailability. Not all base game keybinds are in QuickBind but may appear as updates progress.
+    
+    > \* - Some features may be grayed out due to complexities or unavailability. Not all base game keybinds are in QuickBind but may appear as updates progress.
