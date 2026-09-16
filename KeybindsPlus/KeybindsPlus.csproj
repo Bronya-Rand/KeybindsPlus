@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Dalamud.NET.Sdk/15.0.0">
+  <PropertyGroup>
+    <Version>0.1.0.0</Version>
+    <!-- Manifest fields (see https://github.com/goatcorp/DalamudPackager/blob/827d88dc/DalamudPackager/DalamudPackager.cs#L420) -->
+    <Author>Bronya-Rand</Author>
+    <Name>KeybindsPlus</Name>
+    <Punchline>A almost complete replacement of XIV's keybind system.</Punchline>
+    <Description>KeybindsPlus is a plugin that allows you to bind *almost* any key on your keyboard in XIV and supported Dalamud plugins.
+
+Bind any key, including those not normally supported by the game (F13-F24) to almost any game function as well as any external plugin that implements QuickBind's IPC or even a custom command/macro and have it execute as if it were an actual registered keybind!
+
+Supported Keybinds:
+- Custom Macros and Commands
+- Supported Plugins
+- Targeting*
+- Shortcuts
+- Chat*
+- Hotbars
+
+&gt; * - Some features may be grayed out due to complexities or unavailability. Not all base game keybinds are in QuickBind but may appear as updates progress.</Description>
+    <RepoUrl>https://github.com/Bronya-Rand/KeybindsPlus</RepoUrl>
+    <Tags>keybinds;keybind;extended;plus;utility;other</Tags>
+    <CategoryTags>utility;other</CategoryTags>
+    <Company>Bronya Rand</Company>
+  </PropertyGroup>
+</Project>
