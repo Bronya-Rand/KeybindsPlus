@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Version>0.1.0.0</Version>
     <!-- Manifest fields (see https://github.com/goatcorp/DalamudPackager/blob/827d88dc/DalamudPackager/DalamudPackager.cs#L420) -->
-    <Author>Bronya-Rand</Author>
+    <Author>Bronya Rand</Author>
     <Name>KeybindsPlus</Name>
     <Punchline>A almost complete replacement of XIV's keybind system.</Punchline>
     <Description>KeybindsPlus is a plugin that allows you to bind *almost* any key on your keyboard in XIV and supported Dalamud plugins.
@@ -18,9 +18,11 @@ Supported Keybinds:
 - Chat*
 - Hotbars
 
-&gt; * - Some features may be grayed out due to complexities or unavailability. Not all base game keybinds are in KeybindsPlus but may appear as updates progress.</Description>
+&gt; * - Some features may be grayed out due to complexities or unavailability. Not all base game keybinds are in KeybindsPlus but may appear as updates progress.
+
+(Thanks Miyabi)</Description>
     <RepoUrl>https://github.com/Bronya-Rand/KeybindsPlus</RepoUrl>
-    <Tags>keybinds;keybind;extended;plus;utility;other</Tags>
+    <Tags>keybinds;keybind;extended;plus;utility;other;keyboard;f13</Tags>
     <CategoryTags>utility;other</CategoryTags>
     <Company>Bronya Rand</Company>
   </PropertyGroup>
