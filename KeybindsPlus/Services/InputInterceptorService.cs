@@ -4,7 +4,7 @@ using System.Diagnostics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Plugin.Services;
-using QuickBind.Interop;
+using KeybindsPlus.Interop;
 
 namespace KeybindsPlus.Services
 {

@@ -1,7 +1,6 @@
 using System;
 using Dalamud.Plugin.Ipc;
 using Dalamud.Utility;
-using KeybindsPlus;
 using KeybindsPlus.Helpers;
 using KeybindsPlus.Models;
 using KeybindsPlus.Services;
@@ -12,11 +11,11 @@ internal sealed class IpcService : IDisposable
 {
     public const int ApiVersion = 1;
 
-    public const string ApiVersionLabel = "QuickBind.ApiVersion";
-    public const string RegisterActionLabel = "QuickBind.RegisterAction";
-    public const string UnregisterActionLabel = "QuickBind.UnregisterAction";
-    public const string UnregisterPluginLabel = "QuickBind.UnregisterPlugin";
-    public const string ActionTriggeredLabel = "QuickBind.ActionTriggered";
+    public const string ApiVersionLabel = "KeybindsPlus.ApiVersion";
+    public const string RegisterActionLabel = "KeybindsPlus.RegisterAction";
+    public const string UnregisterActionLabel = "KeybindsPlus.UnregisterAction";
+    public const string UnregisterPluginLabel = "KeybindsPlus.UnregisterPlugin";
+    public const string ActionTriggeredLabel = "KeybindsPlus.ActionTriggered";
 
     private readonly ICallGateProvider<int> apiVersionProvider;
     private readonly ICallGateProvider<string, string, string, string, string?, bool> registerActionProvider;

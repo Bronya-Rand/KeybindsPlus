@@ -6,7 +6,7 @@ using Dalamud.Game.ClientState.Keys;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Utility.Raii;
 using KeybindsPlus.Models;
-using QuickBind.Interop;
+using KeybindsPlus.Interop;
 
 namespace KeybindsPlus.Windows.Components;
 

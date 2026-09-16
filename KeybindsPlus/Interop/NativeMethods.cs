@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace QuickBind.Interop
+namespace KeybindsPlus.Interop
 {
     internal static partial class NativeMethods
     {

@@ -1,13 +1,11 @@
 using System;
 using System.Linq;
 using Dalamud.Game.ClientState.Keys;
-using KeybindsPlus;
 using KeybindsPlus.Executors;
 using KeybindsPlus.Extensions;
 using KeybindsPlus.Interop;
 using KeybindsPlus.Ipc;
 using KeybindsPlus.Models;
-using QuickBind.Executors;
 
 namespace KeybindsPlus.Services
 {

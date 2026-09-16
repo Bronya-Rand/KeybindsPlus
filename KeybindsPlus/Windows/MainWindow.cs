@@ -33,7 +33,7 @@ public class MainWindow : Window, IDisposable
     private readonly GameKeybindsTab<HotbarKeybinds> hotbarTab;
 
     public MainWindow(Plugin plugin)
-        : base($"{Constants.PluginName}##QBBetterKeybinds", ImGuiWindowFlags.None)
+        : base($"{Constants.PluginName}##QBKeybindsPlus", ImGuiWindowFlags.None)
     {
         SizeConstraints = new WindowSizeConstraints
         {

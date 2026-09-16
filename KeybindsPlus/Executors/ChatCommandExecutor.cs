@@ -3,11 +3,10 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using KeybindsPlus;
 using KeybindsPlus.Helpers;
 using KeybindsPlus.Interop;
 
-namespace QuickBind.Executors
+namespace KeybindsPlus.Executors
 {
     public sealed partial class ChatCommandExecutor : IDisposable
     {

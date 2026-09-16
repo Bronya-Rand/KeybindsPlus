@@ -7,10 +7,8 @@ using Dalamud.Interface.Colors;
 using Dalamud.Interface.Components;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
-using KeybindsPlus;
 using KeybindsPlus.Extensions;
 using KeybindsPlus.Models;
-using KeybindsPlus.Windows;
 
 namespace KeybindsPlus.Windows.Tabs;
 
@@ -51,7 +49,7 @@ public class PluginsTab
         if (mainWindow.Plugin.Configuration.ExternalPluginKeybinds.Count == 0)
         {
             ImGui.TextDisabled("No external plugins have registered keybinds yet.");
-            ImGui.TextDisabled("Third-party plugins can register custom keybinds via QuickBind's IPC.");
+            ImGui.TextDisabled("Third-party plugins can register custom keybinds via KeybindsPlus's IPC.");
             return;
         }
 
