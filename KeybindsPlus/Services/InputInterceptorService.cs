@@ -51,7 +51,6 @@ namespace KeybindsPlus.Services
 
                         var isRecording = IsRecordingPredicate?.Invoke() == true;
                         var condition = (NativeMethods.GetForegroundWindow() == gameHwnd && (isRecording || !ImGui.GetIO().WantCaptureKeyboard));
-                        Plugin.Log.Debug($"ForegroundWindowMatch: {NativeMethods.GetForegroundWindow() == gameHwnd}, IsRecording: {isRecording}, WantCaptureKeyboard: {ImGui.GetIO().WantCaptureKeyboard}, Condition: {condition}");
 
                         if (condition)
                         {
