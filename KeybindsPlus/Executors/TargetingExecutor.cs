@@ -5,7 +5,6 @@ using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.UI.Arrays;
-using KeybindsPlus;
 using KeybindsPlus.Helpers;
 using KeybindsPlus.Interop;
 using KeybindsPlus.Models;
@@ -14,6 +13,9 @@ using static FFXIVClientStructs.FFXIV.Client.UI.Arrays.EnemyListNumberArray;
 
 namespace KeybindsPlus.Executors
 {
+    /// <summary>
+    /// Executor class for handling targeting actions in the game.
+    /// </summary>
     public sealed unsafe class TargetingExecutor
     {
         private volatile int lastAllianceMemberIndex = -1; // For cycling through alliance members

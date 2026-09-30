@@ -88,7 +88,7 @@ namespace KeybindsPlus.Models
             return sb.ToString();
         }
         public bool Equals(KeyChord? other) =>
-            other != null && Key == other.Key && CtrlSide == other.CtrlSide && 
+            other != null && Key == other.Key && CtrlSide == other.CtrlSide &&
             AltSide == other.AltSide && ShiftSide == other.ShiftSide;
 
         public override bool Equals(object? obj) => Equals(obj as KeyChord);

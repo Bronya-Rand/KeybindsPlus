@@ -4,6 +4,9 @@ using KeybindsPlus.Helpers;
 
 namespace KeybindsPlus.Interop
 {
+    /// <summary>
+    /// Interop class for handling pronoun operations in the game.
+    /// </summary>
     internal static unsafe class PronounInterop
     {
         public static IGameObject? GetByPlaceholder(string placeholder)

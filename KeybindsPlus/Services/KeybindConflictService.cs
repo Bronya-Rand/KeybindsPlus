@@ -8,6 +8,11 @@ using KeybindsPlus.Models;
 
 namespace KeybindsPlus.Services
 {
+    /// <summary>
+    /// Service responsible for detecting keybind conflicts across custom keybinds, plugin keybinds, and native game keybinds.
+    /// </summary>
+    /// <param name="configuration">The configuration containing all keybinds.</param>
+    /// <param name="registry">The external action registry for plugin keybinds.</param>
     internal unsafe class KeybindConflictService(Configuration configuration, ExternalActionRegistry? registry = null)
     {
         private readonly Configuration configuration = configuration;

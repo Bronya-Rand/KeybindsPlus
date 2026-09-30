@@ -8,6 +8,9 @@ using KeybindsPlus.Interop;
 
 namespace KeybindsPlus.Executors
 {
+    /// <summary>
+    /// Executor class for handling chat commands and macro execution in the game.
+    /// </summary>
     public sealed partial class ChatCommandExecutor : IDisposable
     {
         private static readonly Regex WaitSuffixRegex = XIVWaitMacro();

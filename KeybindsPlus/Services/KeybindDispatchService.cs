@@ -9,6 +9,11 @@ using KeybindsPlus.Models;
 
 namespace KeybindsPlus.Services
 {
+    /// <summary>
+    /// Service responsible for dispatching keybind events to their respective handlers.
+    /// </summary>
+    /// <param name="configuration">The configuration containing all keybinds.</param>
+    /// <param name="ipcService">The IPC service for communication with other plugins.</param>
     public sealed class KeybindDispatchService : IDisposable
     {
         private readonly Configuration configuration;

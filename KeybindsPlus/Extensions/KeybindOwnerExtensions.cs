@@ -10,14 +10,14 @@ namespace KeybindsPlus.Extensions
             owner.Enabled && (KeybindConflictService.IsGameKeybindConflict(owner.PrimaryKey) ||
                 KeybindConflictService.IsGameKeybindConflict(owner.SecondaryKey));
         public static bool Matches(
-            this IKeybindOwner owner, 
+            this IKeybindOwner owner,
             VirtualKey key,
             bool isLCtrlPressed, bool isRCtrlPressed,
             bool isLAltPressed, bool isRAltPressed,
             bool isLShiftPressed, bool isRShiftPressed)
         {
             if (!owner.Enabled) return false;
-            return owner.PrimaryKey.Matches(key, isLCtrlPressed, isRCtrlPressed, isLAltPressed, isRAltPressed, isLShiftPressed, isRShiftPressed) || 
+            return owner.PrimaryKey.Matches(key, isLCtrlPressed, isRCtrlPressed, isLAltPressed, isRAltPressed, isLShiftPressed, isRShiftPressed) ||
                 owner.SecondaryKey.Matches(key, isLCtrlPressed, isRCtrlPressed, isLAltPressed, isRAltPressed, isLShiftPressed, isRShiftPressed);
         }
     }
