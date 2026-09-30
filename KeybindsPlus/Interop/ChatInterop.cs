@@ -7,6 +7,9 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace KeybindsPlus.Interop
 {
+    /// <summary>
+    /// Interop class for handling chat operations in the game.
+    /// </summary>
     public unsafe class ChatInterop
     {
         public static void SendMessageUnsafe(byte[] message)

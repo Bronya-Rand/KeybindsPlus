@@ -11,6 +11,9 @@ using CSVector3 = FFXIVClientStructs.FFXIV.Common.Math.Vector3;
 
 namespace KeybindsPlus.Interop
 {
+    /// <summary>
+    /// Interop class for handling targeting operations in the game.
+    /// </summary>
     public static unsafe class TargetingInterop
     {
         private const float MaxDistanceToTarget = 49.5f; // Maximum distance the game can target someone legitimately

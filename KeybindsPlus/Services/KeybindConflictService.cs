@@ -1,15 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Dalamud.Game.ClientState.Keys;
 using FFXIVClientStructs.FFXIV.Client.System.Input;
 using FFXIVClientStructs.FFXIV.Client.UI;
-using KeybindsPlus;
 using KeybindsPlus.Ipc;
 using KeybindsPlus.Models;
 
 namespace KeybindsPlus.Services
 {
+    /// <summary>
+    /// Service responsible for detecting keybind conflicts across custom keybinds, plugin keybinds, and native game keybinds.
+    /// </summary>
+    /// <param name="configuration">The configuration containing all keybinds.</param>
+    /// <param name="registry">The external action registry for plugin keybinds.</param>
     internal unsafe class KeybindConflictService(Configuration configuration, ExternalActionRegistry? registry = null)
     {
         private readonly Configuration configuration = configuration;
@@ -231,16 +234,17 @@ namespace KeybindsPlus.Services
         {
             if (chord.IsEmpty) return false;
             if (xivKeybind.Key == SeVirtualKey.NO_KEY) return false;
+            if (!Plugin.KeyState.TryGetSeVirtualKey(chord.Key, out var seVkCode)) return false;
 
             var xivKeybindCtrl = xivKeybind.KeyModifier.HasFlag(KeyModifierFlag.Ctrl);
-            var xivKeybindShift = xivKeybind.KeyModifier.HasFlag(KeyModifierFlag.Shift);
             var xivKeybindAlt = xivKeybind.KeyModifier.HasFlag(KeyModifierFlag.Alt);
-            var xivKeybindKey = (VirtualKey)xivKeybind.Key;
+            var xivKeybindShift = xivKeybind.KeyModifier.HasFlag(KeyModifierFlag.Shift);
 
-            return chord.Key == xivKeybindKey &&
-                   chord.Ctrl == xivKeybindCtrl &&
-                   chord.Shift == xivKeybindShift &&
-                   chord.Alt == xivKeybindAlt;
+            var ctrlMatches = (chord.CtrlSide != ModifierSide.None) == xivKeybindCtrl;
+            var altMatches = (chord.AltSide != ModifierSide.None) == xivKeybindAlt;
+            var shiftMatches = (chord.ShiftSide != ModifierSide.None) == xivKeybindShift;
+
+            return seVkCode == (int)xivKeybind.Key && ctrlMatches && altMatches && shiftMatches;
         }
     }
 }

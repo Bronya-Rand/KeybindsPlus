@@ -7,7 +7,6 @@ using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
 using KeybindsPlus.Extensions;
 using KeybindsPlus.Models;
-using KeybindsPlus.Windows;
 
 namespace KeybindsPlus.Windows.Tabs;
 

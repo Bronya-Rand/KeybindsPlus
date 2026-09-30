@@ -1,13 +1,16 @@
 using System.Collections.Generic;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Client.UI.Misc;
-using KeybindsPlus;
 using KeybindsPlus.Helpers;
 
 namespace KeybindsPlus.Executors
 {
     public sealed unsafe class NativeActionExecutor
     {
+        /// <summary>
+        /// Executes the window action for the specified agent IDs.
+        /// </summary>
+        /// <param name="agentIds">The list of agent IDs for which to execute the window action.</param>
         public void ExecuteWindow(List<AgentId> agentIds)
         {
             Plugin.Framework.RunOnFrameworkThread(() =>

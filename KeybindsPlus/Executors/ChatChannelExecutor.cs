@@ -11,6 +11,10 @@ namespace KeybindsPlus.Executors
         None = 0,
         Forward = 1
     }
+
+    /// <summary>
+    /// Executor class for handling chat channel operations in the game.
+    /// </summary>
     public sealed unsafe class ChatChannelExecutor
     {
         public void SetChatChannel(int channelIdx, uint? linkshellIdx, bool isPermanent = true)
