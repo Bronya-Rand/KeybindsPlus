@@ -5,8 +5,8 @@ using Dalamud.Bindings.ImGui;
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Utility.Raii;
-using KeybindsPlus.Models;
 using KeybindsPlus.Interop;
+using KeybindsPlus.Models;
 
 namespace KeybindsPlus.Windows.Components;
 
@@ -42,7 +42,7 @@ public class KeybindSetModal
         slotNumber = slot;
         onChordSaved = onSave;
         onConflict = checkConflict;
-        workingChord = new KeyChord(sourceChord.Key, sourceChord.CtrlSide, sourceChord.ShiftSide, sourceChord.AltSide);
+        workingChord = new KeyChord(sourceChord.Key, sourceChord.CtrlSide, sourceChord.AltSide, sourceChord.ShiftSide);
         isDirectional = sourceChord.CtrlSide is ModifierSide.Left or ModifierSide.Right
             || sourceChord.ShiftSide is ModifierSide.Left or ModifierSide.Right
             || sourceChord.AltSide is ModifierSide.Left or ModifierSide.Right;
@@ -94,21 +94,21 @@ public class KeybindSetModal
         if (isDirectional)
         {
             // Directional modifier
-            if (NativeMethods.IsKeyDown(0xA2)) ctrlSide = ModifierSide.Left;  // VK_LCONTROL
-            else if (NativeMethods.IsKeyDown(0xA3)) ctrlSide = ModifierSide.Right; // VK_RCONTROL
+            if (NativeMethods.IsKeyDown(VirtualKey.LCONTROL)) ctrlSide = ModifierSide.Left;
+            else if (NativeMethods.IsKeyDown(VirtualKey.RCONTROL)) ctrlSide = ModifierSide.Right;
 
-            if (NativeMethods.IsKeyDown(0xA4)) altSide = ModifierSide.Left;   // VK_LMENU
-            else if (NativeMethods.IsKeyDown(0xA5)) altSide = ModifierSide.Right;  // VK_RMENU
+            if (NativeMethods.IsKeyDown(VirtualKey.LMENU)) altSide = ModifierSide.Left;
+            else if (NativeMethods.IsKeyDown(VirtualKey.RMENU)) altSide = ModifierSide.Right;
 
-            if (NativeMethods.IsKeyDown(0xA0)) shiftSide = ModifierSide.Left; // VK_LSHIFT
-            else if (NativeMethods.IsKeyDown(0xA1)) shiftSide = ModifierSide.Right; // VK_RSHIFT
+            if (NativeMethods.IsKeyDown(VirtualKey.LSHIFT)) shiftSide = ModifierSide.Left;
+            else if (NativeMethods.IsKeyDown(VirtualKey.RSHIFT)) shiftSide = ModifierSide.Right;
         }
         else
         {
             // Generic modifier
-            if (NativeMethods.IsKeyDown(0x11)) ctrlSide = ModifierSide.Any;  // VK_CONTROL
-            if (NativeMethods.IsKeyDown(0x12)) altSide = ModifierSide.Any;   // VK_MENU
-            if (NativeMethods.IsKeyDown(0x10)) shiftSide = ModifierSide.Any; // VK_SHIFT
+            if (NativeMethods.IsKeyDown(VirtualKey.CONTROL)) ctrlSide = ModifierSide.Any;
+            if (NativeMethods.IsKeyDown(VirtualKey.MENU)) altSide = ModifierSide.Any;
+            if (NativeMethods.IsKeyDown(VirtualKey.SHIFT)) shiftSide = ModifierSide.Any;
         }
 
         // Assign the recorded chord
@@ -143,6 +143,17 @@ public class KeybindSetModal
             return;
         }
 
+        // Check for mouse input via KeyState
+        if (isListening)
+        {
+            if (Plugin.KeyState[VirtualKey.MBUTTON])
+                HandleKeyEvent(VirtualKey.MBUTTON, true);
+            else if (Plugin.KeyState[VirtualKey.XBUTTON1])
+                HandleKeyEvent(VirtualKey.XBUTTON1, true);
+            else if (Plugin.KeyState[VirtualKey.XBUTTON2])
+                HandleKeyEvent(VirtualKey.XBUTTON2, true);
+        }
+
         // Header Text
         ImGui.TextUnformatted($"Assign Inputs To: {targetTitle} (Keybind {slotNumber})");
         ImGui.Separator();
@@ -156,9 +167,9 @@ public class KeybindSetModal
         // Status / Helper hint
         if (isListening)
         {
-            var isCtrl = NativeMethods.IsKeyDown(0x11);  // VK_CONTROL
-            var isShift = NativeMethods.IsKeyDown(0x10); // VK_SHIFT
-            var isAlt = NativeMethods.IsKeyDown(0x12);   // VK_MENU
+            var isCtrl = NativeMethods.IsKeyDown(VirtualKey.CONTROL);
+            var isShift = NativeMethods.IsKeyDown(VirtualKey.SHIFT);
+            var isAlt = NativeMethods.IsKeyDown(VirtualKey.MENU);
 
             if (isCtrl || isShift || isAlt)
                 ImGui.TextColored(new Vector4(1.0f, 0.8f, 0.2f, 1.0f), "Holding modifier... Press your primary key (e.g. F13, P, Mouse 4).");
@@ -182,8 +193,9 @@ public class KeybindSetModal
 
         // Use Directional Keys
         var useDirectionalKeys = isDirectional;
-        if (ImGui.Checkbox("Differentiate Left/Right Modifiers (Ctrl, Alt, Shift)", ref useDirectionalKeys))
-            isDirectional = useDirectionalKeys;
+        using (ImRaii.Disabled(isListening))
+            if (ImGui.Checkbox("Differentiate Left/Right Modifiers (Ctrl, Alt, Shift)", ref useDirectionalKeys))
+                isDirectional = useDirectionalKeys;
 
         ImGui.Spacing();
         ImGui.Separator();
@@ -268,17 +280,39 @@ public class KeybindSetModal
             return workingChord.IsEmpty ? "Not Bound" : workingChord.GetDisplayString();
         }
 
-        var isCtrl = NativeMethods.IsKeyDown(0x11);  // VK_CONTROL
-        var isShift = NativeMethods.IsKeyDown(0x10); // VK_SHIFT
-        var isAlt = NativeMethods.IsKeyDown(0x12);   // VK_MENU
+        var isCtrl = NativeMethods.IsKeyDown(VirtualKey.CONTROL);
+        var isShift = NativeMethods.IsKeyDown(VirtualKey.SHIFT);
+        var isAlt = NativeMethods.IsKeyDown(VirtualKey.MENU);
 
-        if (isCtrl || isShift || isAlt)
+        var isLeftCtrl = NativeMethods.IsKeyDown(VirtualKey.LCONTROL);
+        var isRightCtrl = NativeMethods.IsKeyDown(VirtualKey.RCONTROL);
+        var isLeftAlt = NativeMethods.IsKeyDown(VirtualKey.LMENU);
+        var isRightAlt = NativeMethods.IsKeyDown(VirtualKey.RMENU);
+        var isLeftShift = NativeMethods.IsKeyDown(VirtualKey.LSHIFT);
+        var isRightShift = NativeMethods.IsKeyDown(VirtualKey.RSHIFT);
+
+        var hasModifier = isCtrl || isShift || isAlt;
+        var hasDirectionalModifier = isLeftCtrl || isRightCtrl || isLeftAlt || isRightAlt || isLeftShift || isRightShift;
+
+        if (hasModifier || hasDirectionalModifier)
         {
             var sb = new StringBuilder();
-            if (isCtrl) sb.Append("Ctrl+");
-            if (isAlt) sb.Append("Alt+");
-            if (isShift) sb.Append("Shift+");
-            sb.Append("...");
+            if (isCtrl)
+                if (isDirectional)
+                    sb.Append(isLeftCtrl ? "Left Ctrl+" : "Right Ctrl+");
+                else
+                    sb.Append("Ctrl+");
+            if (isAlt)
+                if (isDirectional)
+                    sb.Append(isLeftAlt ? "Left Alt+" : "Right Alt+");
+                else
+                    sb.Append("Alt+");
+            if (isShift)
+                if (isDirectional)
+                    sb.Append(isLeftShift ? "Left Shift+" : "Right Shift+");
+                else
+                    sb.Append("Shift+");
+
             return sb.ToString();
         }
 
