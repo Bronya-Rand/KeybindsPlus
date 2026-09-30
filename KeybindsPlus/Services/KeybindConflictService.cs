@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Dalamud.Game.ClientState.Keys;
 using FFXIVClientStructs.FFXIV.Client.System.Input;
 using FFXIVClientStructs.FFXIV.Client.UI;
-using KeybindsPlus;
 using KeybindsPlus.Ipc;
 using KeybindsPlus.Models;
 
@@ -231,13 +229,13 @@ namespace KeybindsPlus.Services
         {
             if (chord.IsEmpty) return false;
             if (xivKeybind.Key == SeVirtualKey.NO_KEY) return false;
+            if (!Plugin.KeyState.TryGetSeVirtualKey(chord.Key, out var seVkCode)) return false;
 
             var xivKeybindCtrl = xivKeybind.KeyModifier.HasFlag(KeyModifierFlag.Ctrl);
             var xivKeybindShift = xivKeybind.KeyModifier.HasFlag(KeyModifierFlag.Shift);
             var xivKeybindAlt = xivKeybind.KeyModifier.HasFlag(KeyModifierFlag.Alt);
-            var xivKeybindKey = (VirtualKey)xivKeybind.Key;
 
-            return chord.Key == xivKeybindKey &&
+            return (SeVirtualKey)seVkCode == xivKeybind.Key &&
                    chord.Ctrl == xivKeybindCtrl &&
                    chord.Shift == xivKeybindShift &&
                    chord.Alt == xivKeybindAlt;

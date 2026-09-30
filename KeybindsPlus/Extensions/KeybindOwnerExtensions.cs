@@ -12,7 +12,7 @@ namespace KeybindsPlus.Extensions
         public static bool Matches(this IKeybindOwner owner, VirtualKey key, bool ctrl, bool alt, bool shift)
         {
             if (!owner.Enabled) return false;
-            return owner.PrimaryKey.Matches(key, ctrl, shift, alt) || owner.SecondaryKey.Matches(key, ctrl, shift, alt);
+            return owner.PrimaryKey.Matches(key, ctrl, alt, shift) || owner.SecondaryKey.Matches(key, ctrl, alt, shift);
         }
     }
 }

@@ -40,6 +40,7 @@ namespace KeybindsPlus.Services
 
         private IntPtr WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam, nuint uIdSubclass, IntPtr dwRefData)
         {
+            var isRecording = IsRecordingPredicate?.Invoke() == true;
             switch (msg)
             {
                 case NativeMethods.WM_KEYDOWN:
@@ -49,7 +50,6 @@ namespace KeybindsPlus.Services
                         var vkCode = (VirtualKey)vkShort;
                         var isRepeat = (lParam.ToInt64() & 0x40000000) != 0;
 
-                        var isRecording = IsRecordingPredicate?.Invoke() == true;
                         var condition = (NativeMethods.GetForegroundWindow() == gameHwnd && (isRecording || !ImGui.GetIO().WantCaptureKeyboard));
 
                         if (condition)
@@ -64,8 +64,7 @@ namespace KeybindsPlus.Services
                             // Consume input if:
                             // 1. The plugin is recording keybinds
                             // 2. Pressed key matched a active keybind (isHandled = true)
-                            // 3. Unsupported Keys (F13-F24) are pressed [prevents game/Windows from handling them]
-                            if (isRecording || isHandled || vkShort is >= 0x7C and <= 0x87)
+                            if (isRecording || isHandled)
                                 return IntPtr.Zero;
                         }
                         break;
@@ -80,9 +79,9 @@ namespace KeybindsPlus.Services
 
                         if (NativeMethods.GetForegroundWindow() == gameHwnd)
                         {
-                            var isHandled = OnKeyEvent?.Invoke(vkCode, false);
+                            var isHandled = OnKeyEvent?.Invoke(vkCode, false) ?? false;
 
-                            if (IsRecordingPredicate?.Invoke() == true || isHandled == true || vkShort is >= 0x7C and <= 0x87)
+                            if (isRecording || isHandled)
                                 return IntPtr.Zero;
                         }
                         break;

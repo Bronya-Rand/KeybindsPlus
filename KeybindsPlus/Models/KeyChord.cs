@@ -27,7 +27,7 @@ namespace KeybindsPlus.Models
             Alt = alt;
         }
 
-        public bool Matches(VirtualKey pressedKey, bool isCtrlDown, bool isShiftDown, bool isAltDown)
+        public bool Matches(VirtualKey pressedKey, bool isCtrlDown, bool isAltDown, bool isShiftDown)
         {
             if (IsEmpty) return false;
             return Key == pressedKey && Ctrl == isCtrlDown && Shift == isShiftDown && Alt == isAltDown;
