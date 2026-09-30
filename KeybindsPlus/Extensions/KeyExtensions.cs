@@ -1,3 +1,4 @@
+using System.Linq;
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Utility;
 
@@ -122,7 +123,7 @@ public static class KeyExtensions
         }
 
         // Check friendly names across valid keys
-        foreach (var vk in System.Enum.GetValues<VirtualKey>())
+        foreach (var vk in Plugin.KeyState.GetValidVirtualKeys().Concat(Plugin.KeyState.GetExtendedVirtualKeys()))
         {
             if (vk.GetFriendlyName().Equals(trimmed, System.StringComparison.OrdinalIgnoreCase))
             {

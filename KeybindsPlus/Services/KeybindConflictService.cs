@@ -232,13 +232,14 @@ namespace KeybindsPlus.Services
             if (!Plugin.KeyState.TryGetSeVirtualKey(chord.Key, out var seVkCode)) return false;
 
             var xivKeybindCtrl = xivKeybind.KeyModifier.HasFlag(KeyModifierFlag.Ctrl);
-            var xivKeybindShift = xivKeybind.KeyModifier.HasFlag(KeyModifierFlag.Shift);
             var xivKeybindAlt = xivKeybind.KeyModifier.HasFlag(KeyModifierFlag.Alt);
+            var xivKeybindShift = xivKeybind.KeyModifier.HasFlag(KeyModifierFlag.Shift);
 
-            return (SeVirtualKey)seVkCode == xivKeybind.Key &&
-                   chord.Ctrl == xivKeybindCtrl &&
-                   chord.Shift == xivKeybindShift &&
-                   chord.Alt == xivKeybindAlt;
+            var ctrlMatches = (chord.CtrlSide != ModifierSide.None) == xivKeybindCtrl;
+            var altMatches = (chord.AltSide != ModifierSide.None) == xivKeybindAlt;
+            var shiftMatches = (chord.ShiftSide != ModifierSide.None) == xivKeybindShift;
+
+            return seVkCode == (int)xivKeybind.Key && ctrlMatches && altMatches && shiftMatches;
         }
     }
 }

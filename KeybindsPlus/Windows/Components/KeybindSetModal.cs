@@ -17,6 +17,7 @@ public class KeybindSetModal
     private bool shouldOpenModal;
     private bool isOpen;
     private bool isListening;
+    private bool isDirectional;
 
     private string targetTitle = "Keybind";
     private int slotNumber = 1;
@@ -41,7 +42,10 @@ public class KeybindSetModal
         slotNumber = slot;
         onChordSaved = onSave;
         onConflict = checkConflict;
-        workingChord = new KeyChord(sourceChord.Key, sourceChord.Ctrl, sourceChord.Shift, sourceChord.Alt);
+        workingChord = new KeyChord(sourceChord.Key, sourceChord.CtrlSide, sourceChord.ShiftSide, sourceChord.AltSide);
+        isDirectional = sourceChord.CtrlSide is ModifierSide.Left or ModifierSide.Right
+            || sourceChord.ShiftSide is ModifierSide.Left or ModifierSide.Right
+            || sourceChord.AltSide is ModifierSide.Left or ModifierSide.Right;
 
         currentConflict = null;
         shouldOpenModal = true;
@@ -83,16 +87,32 @@ public class KeybindSetModal
             return true;
         }
 
-        // Grab current modifier states from the OS directly.
-        // Plugin.KeyState relies on the game processing WM_KEYDOWN, but during
-        // recording mode InputInterceptorService consumes those messages before
-        // they reach the game, so Plugin.KeyState is stale for modifiers.
-        var ctrl = NativeMethods.IsKeyDown(0x11);  // VK_CONTROL
-        var shift = NativeMethods.IsKeyDown(0x10); // VK_SHIFT
-        var alt = NativeMethods.IsKeyDown(0x12);   // VK_MENU
+        var ctrlSide = ModifierSide.None;
+        var altSide = ModifierSide.None;
+        var shiftSide = ModifierSide.None;
+
+        if (isDirectional)
+        {
+            // Directional modifier
+            if (NativeMethods.IsKeyDown(0xA2)) ctrlSide = ModifierSide.Left;  // VK_LCONTROL
+            else if (NativeMethods.IsKeyDown(0xA3)) ctrlSide = ModifierSide.Right; // VK_RCONTROL
+
+            if (NativeMethods.IsKeyDown(0xA4)) altSide = ModifierSide.Left;   // VK_LMENU
+            else if (NativeMethods.IsKeyDown(0xA5)) altSide = ModifierSide.Right;  // VK_RMENU
+
+            if (NativeMethods.IsKeyDown(0xA0)) shiftSide = ModifierSide.Left; // VK_LSHIFT
+            else if (NativeMethods.IsKeyDown(0xA1)) shiftSide = ModifierSide.Right; // VK_RSHIFT
+        }
+        else
+        {
+            // Generic modifier
+            if (NativeMethods.IsKeyDown(0x11)) ctrlSide = ModifierSide.Any;  // VK_CONTROL
+            if (NativeMethods.IsKeyDown(0x12)) altSide = ModifierSide.Any;   // VK_MENU
+            if (NativeMethods.IsKeyDown(0x10)) shiftSide = ModifierSide.Any; // VK_SHIFT
+        }
 
         // Assign the recorded chord
-        workingChord = new KeyChord(key, ctrl, shift, alt);
+        workingChord = new KeyChord(key, ctrlSide, altSide, shiftSide);
         isListening = false; // Finished listening
 
         // Check for conflicts after recording
@@ -159,6 +179,11 @@ public class KeybindSetModal
             else
                 ImGui.TextColored(ImGuiColors.DalamudRed, $"{workingChord.GetDisplayString()} is already bound to \'{currentConflict.OwnerName}\' (Keybind {currentConflict.Slot}).");
         }
+
+        // Use Directional Keys
+        var useDirectionalKeys = isDirectional;
+        if (ImGui.Checkbox("Differentiate Left/Right Modifiers (Ctrl, Alt, Shift)", ref useDirectionalKeys))
+            isDirectional = useDirectionalKeys;
 
         ImGui.Spacing();
         ImGui.Separator();

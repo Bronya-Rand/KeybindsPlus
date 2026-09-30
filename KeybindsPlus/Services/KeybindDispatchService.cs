@@ -37,12 +37,16 @@ namespace KeybindsPlus.Services
             if (!isDown) return false;
             if (ChatInterop.IsGameTextInputActive()) return false;
 
-            var ctrl = Plugin.KeyState[VirtualKey.CONTROL];
-            var shift = Plugin.KeyState[VirtualKey.SHIFT];
-            var alt = Plugin.KeyState[VirtualKey.MENU];
+            var isLCtrlPressed = Plugin.KeyState[VirtualKey.LCONTROL];
+            var isRCtrlPressed = Plugin.KeyState[VirtualKey.RCONTROL];
+            var isLAltPressed = Plugin.KeyState[VirtualKey.LMENU];
+            var isRAltPressed = Plugin.KeyState[VirtualKey.RMENU];
+            var isLShiftPressed = Plugin.KeyState[VirtualKey.LSHIFT];
+            var isRShiftPressed = Plugin.KeyState[VirtualKey.RSHIFT];
 
             // Check Custom Keybinds
-            var customKeybind = configuration.Keybinds.FirstOrDefault(k => k.Matches(key, ctrl, alt, shift));
+            var customKeybind = configuration.Keybinds.FirstOrDefault(k => k.Matches(
+                key, isLCtrlPressed, isRCtrlPressed, isLAltPressed, isRAltPressed, isLShiftPressed, isRShiftPressed));
             if (customKeybind != null)
             {
                 DispatchCustomKeybind(customKeybind);
@@ -55,7 +59,7 @@ namespace KeybindsPlus.Services
                 foreach (var (actionId, assignment) in actions)
                 {
                     if (!assignment.Enabled) continue;
-                    if (assignment.Matches(key, ctrl, alt, shift))
+                    if (assignment.Matches(key, isLCtrlPressed, isRCtrlPressed, isLAltPressed, isRAltPressed, isLShiftPressed, isRShiftPressed))
                     {
                         ipcService?.NotifyActionTriggered(pluginName, actionId);
                         return true;
@@ -67,7 +71,7 @@ namespace KeybindsPlus.Services
             foreach (var (action, assignment) in configuration.TargetingKeybinds)
             {
                 if (!action.GetMetadata().IsSupported) continue;
-                if (assignment.Matches(key, ctrl, alt, shift))
+                if (assignment.Matches(key, isLCtrlPressed, isRCtrlPressed, isLAltPressed, isRAltPressed, isLShiftPressed, isRShiftPressed))
                 {
                     targetingExecutor.Execute(action);
                     return true;
@@ -78,7 +82,7 @@ namespace KeybindsPlus.Services
             foreach (var (agent, assignment) in configuration.ShortcutKeybinds)
             {
                 if (!agent.GetMetadata().IsSupported) continue;
-                if (assignment.Matches(key, ctrl, alt, shift))
+                if (assignment.Matches(key, isLCtrlPressed, isRCtrlPressed, isLAltPressed, isRAltPressed, isLShiftPressed, isRShiftPressed))
                 {
                     var (agentIds, _) = agent.GetInfo();
                     oneShotExecutor.ExecuteWindow(agentIds);
@@ -90,7 +94,7 @@ namespace KeybindsPlus.Services
             foreach (var (channel, assignment) in configuration.ChatKeybinds)
             {
                 if (!channel.GetMetadata().IsSupported) continue;
-                if (assignment.Matches(key, ctrl, alt, shift))
+                if (assignment.Matches(key, isLCtrlPressed, isRCtrlPressed, isLAltPressed, isRAltPressed, isLShiftPressed, isRShiftPressed))
                 {
                     DispatchChatKeybind(channel);
                     return true;
@@ -101,7 +105,7 @@ namespace KeybindsPlus.Services
             foreach (var (hotbar, assignment) in configuration.HotbarKeybinds)
             {
                 if (!hotbar.GetMetadata().IsSupported) continue;
-                if (assignment.Matches(key, ctrl, alt, shift))
+                if (assignment.Matches(key, isLCtrlPressed, isRCtrlPressed, isLAltPressed, isRAltPressed, isLShiftPressed, isRShiftPressed))
                 {
                     var (hotbarId, slotId, _) = hotbar.GetInfo();
                     switch (hotbar)
