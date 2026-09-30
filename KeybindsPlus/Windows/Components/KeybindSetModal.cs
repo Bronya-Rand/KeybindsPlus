@@ -195,7 +195,10 @@ public class KeybindSetModal
         var useDirectionalKeys = isDirectional;
         using (ImRaii.Disabled(isListening))
             if (ImGui.Checkbox("Differentiate Left/Right Modifiers (Ctrl, Alt, Shift)", ref useDirectionalKeys))
+            {
                 isDirectional = useDirectionalKeys;
+                workingChord = new(); // Reset the working chord when changing directional mode
+            }
 
         ImGui.Spacing();
         ImGui.Separator();
