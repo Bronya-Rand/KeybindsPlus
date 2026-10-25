@@ -13,7 +13,7 @@ namespace KeybindsPlus.Executors
     /// </summary>
     public sealed partial class ChatCommandExecutor : IDisposable
     {
-        private static readonly Regex WaitSuffixRegex = XIVWaitMacro();
+        private static readonly Regex WaitSuffixRegex = XivWaitMacro();
         private CancellationTokenSource? currentMacroCts;
         private readonly Lock macroLock = new();
 
@@ -25,7 +25,7 @@ namespace KeybindsPlus.Executors
             if (!trimmed.StartsWith('/'))
                 trimmed = "/" + trimmed;
 
-            Plugin.Framework.RunOnFrameworkThread(() =>
+            Plugin.Framework.Run(() =>
             {
                 var dalamudCmdResult = Plugin.CommandManager.ProcessCommand(trimmed);
                 if (!dalamudCmdResult)
@@ -101,7 +101,7 @@ namespace KeybindsPlus.Executors
 
                         // Execute on Framework Thread
                         var finalCmd = line;
-                        await Plugin.Framework.RunOnFrameworkThread(() =>
+                        await Plugin.Framework.Run(() =>
                         {
                             if (token.IsCancellationRequested) return;
 
@@ -116,7 +116,7 @@ namespace KeybindsPlus.Executors
                                 // Plain text message output to current chat channel (e.g. "Hello party!")
                                 ChatInterop.SendMessage(finalCmd);
                             }
-                        });
+                        }, token);
 
                         // If line had a suffix delay, wait before processing next line
                         if (delayMs > 0)
@@ -157,6 +157,6 @@ namespace KeybindsPlus.Executors
         }
 
         [GeneratedRegex(@"<wait\.(\d+(?:[\.,]\d+)?)>", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
-        private static partial Regex XIVWaitMacro();
+        private static partial Regex XivWaitMacro();
     }
 }

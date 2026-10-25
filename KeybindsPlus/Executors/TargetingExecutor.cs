@@ -26,13 +26,13 @@ namespace KeybindsPlus.Executors
 
         public void Execute(TargetingActions action)
         {
-            Plugin.Framework.RunOnFrameworkThread(() =>
+            Plugin.Framework.Run(() =>
             {
                 switch (action)
                 {
                     // Party List Targeting
                     case >= TargetingActions.TargetPartyMember1 and <= TargetingActions.TargetPartyMember8:
-                        var partyIdx = (int)(action - TargetingActions.TargetPartyMember1);
+                        var partyIdx = (action - TargetingActions.TargetPartyMember1);
                         TargetPartyMember(partyIdx);
                         break;
                     case TargetingActions.TargetAssist:
@@ -61,10 +61,10 @@ namespace KeybindsPlus.Executors
                         TargetNearestEnemy();
                         break;
                     case TargetingActions.TargetNearestPC:
-                        TargetNearestPC();
+                        TargetNearestPc();
                         break;
                     case TargetingActions.TargetNearestNPC:
-                        TargetNearestNPCObject();
+                        TargetNearestNpcObject();
                         break;
                     case TargetingActions.TargetPet:
                         ExecuteTargetPlaceholderCommand("<pet>");
@@ -74,15 +74,15 @@ namespace KeybindsPlus.Executors
                         break;
 
                     case >= TargetingActions.TargetAlliance1_Member1 and <= TargetingActions.TargetAlliance1_Member8:
-                        var memberIdx1 = (int)(action - TargetingActions.TargetAlliance1_Member1);
+                        var memberIdx1 = (action - TargetingActions.TargetAlliance1_Member1);
                         TargetAllianceListMember(1, memberIdx1);
                         break;
                     case >= TargetingActions.TargetAlliance2_Member1 and <= TargetingActions.TargetAlliance2_Member8:
-                        var memberIdx2 = (int)(action - TargetingActions.TargetAlliance2_Member1);
+                        var memberIdx2 = (action - TargetingActions.TargetAlliance2_Member1);
                         TargetAllianceListMember(2, memberIdx2);
                         break;
                     case >= TargetingActions.TargetEnemyPartyMember1 and <= TargetingActions.TargetEnemyPartyMember5: // Crystalline Conflict
-                        var enemyPartyIdx = (int)(action - TargetingActions.TargetEnemyPartyMember1);
+                        var enemyPartyIdx = (action - TargetingActions.TargetEnemyPartyMember1);
                         ExecuteTargetPlaceholderCommand($"<e{enemyPartyIdx + 1}>");
                         break;
 
@@ -192,9 +192,9 @@ namespace KeybindsPlus.Executors
                     break;
             }
         }
-        private void TargetAllianceListMember(int allianceListNumber, int memberIdx) // 1 or 2 (or 3 for small alliance)
+        private static void TargetAllianceListMember(int allianceListNumber, int memberIdx) // 1 or 2 (or 3 for small alliance)
         {
-            Plugin.Framework.RunOnFrameworkThread(() =>
+            Plugin.Framework.Run(() =>
             {
                 var array = AllianceListNumberArray.Instance();
                 if (array == null)
@@ -243,7 +243,7 @@ namespace KeybindsPlus.Executors
                 return;
             }
 
-            int? listIdx = listNumber.HasValue ? listNumber.Value - 1 : null; // Convert to 0-based index if specified
+            var listIdx = listNumber - 1; // Convert to 0-based index if specified
             if (listIdx != null && (listIdx < 0 || listIdx >= array->PartyCount))
             {
                 LogHelper.LogError($"Invalid alliance list number: {listNumber}. Must be 1 or {array->PartyCount}.");
@@ -311,9 +311,9 @@ namespace KeybindsPlus.Executors
             TargetNearest(obj => !obj.IsDead &&
                 (obj.ObjectKind == ObjectKind.BattleNpc || obj.ObjectKind == ObjectKind.Pc) &&
                 TargetingInterop.CanAttack(obj));
-        private static void TargetNearestPC() =>
+        private static void TargetNearestPc() =>
             TargetNearest(obj => obj.ObjectKind == ObjectKind.Pc);
-        private static void TargetNearestNPCObject() =>
+        private static void TargetNearestNpcObject() =>
             TargetNearest(obj => obj.ObjectKind is ObjectKind.EventNpc
                 or ObjectKind.EventObj
                 or ObjectKind.AreaObject
@@ -340,13 +340,12 @@ namespace KeybindsPlus.Executors
             // Get all valid enemies
             var currentCandidates = Plugin.ObjectTable
                 .Where(obj => obj.IsValid() &&
-                    obj.IsTargetable &&
-                    !obj.IsDead &&
-                    (obj.ObjectKind == ObjectKind.BattleNpc || obj.ObjectKind == ObjectKind.Pc) &&
-                    obj.EntityId != player.EntityId &&
-                    TargetingInterop.WithinRange(player, obj) &&
-                    TargetingInterop.CanAttack(obj) &&
-                    TargetingInterop.InLineOfSight(obj))
+                              obj is { IsTargetable: true, IsDead: false } &&
+                              (obj.ObjectKind == ObjectKind.BattleNpc || obj.ObjectKind == ObjectKind.Pc) &&
+                              obj.EntityId != player.EntityId &&
+                              TargetingInterop.WithinRange(player, obj) &&
+                              TargetingInterop.CanAttack(obj) &&
+                              TargetingInterop.InLineOfSight(obj))
                 .ToList();
 
             if (currentCandidates.Count == 0)
@@ -369,9 +368,11 @@ namespace KeybindsPlus.Executors
             else
             {
                 // Remove any cached IDs that are no longer valid
-                cachedEnemyCycleIds = cachedEnemyCycleIds
-                    .Where(id => currentCandidateIds.Contains(id))
-                    .ToList();
+                cachedEnemyCycleIds =
+                [
+                    .. cachedEnemyCycleIds
+                        .Where(currentCandidateIds.Contains)
+                ];
 
                 // Add any new valid enemies to the cache
                 var newEnemies = currentCandidates

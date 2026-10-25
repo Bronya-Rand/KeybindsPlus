@@ -90,7 +90,7 @@ namespace KeybindsPlus.Services
                 if (assignment.Matches(key, isLCtrlPressed, isRCtrlPressed, isLAltPressed, isRAltPressed, isLShiftPressed, isRShiftPressed))
                 {
                     var (agentIds, _) = agent.GetInfo();
-                    oneShotExecutor.ExecuteWindow(agentIds);
+                    NativeActionExecutor.ExecuteWindow(agentIds);
                     return true;
                 }
             }
@@ -116,14 +116,14 @@ namespace KeybindsPlus.Services
                     switch (hotbar)
                     {
                         case >= HotbarKeybinds.PetHotbar_1 and <= HotbarKeybinds.PetHotbar_12:
-                            oneShotExecutor.ExecutePetHotbarSlot(slotId);
+                            NativeActionExecutor.ExecutePetHotbarSlot(slotId);
                             break;
                         case HotbarKeybinds.DutyAction_1:
                         case HotbarKeybinds.DutyAction_2:
-                            oneShotExecutor.ExecuteDutyAction(slotId);
+                            NativeActionExecutor.ExecuteDutyAction(slotId);
                             break;
                         default:
-                            oneShotExecutor.ExecuteHotbarSlot(hotbarId, slotId);
+                            NativeActionExecutor.ExecuteHotbarSlot(hotbarId, slotId);
                             break;
                     }
                     return true;
@@ -173,7 +173,7 @@ namespace KeybindsPlus.Services
                     break;
                 default:
                     var (channelType, linkshellIdx, isPermanent) = channel.GetExecutionData();
-                    chatChannelExecutor.SetChatChannel(channelType, linkshellIdx, isPermanent);
+                    ChatChannelExecutor.SetChatChannel(channelType, linkshellIdx, isPermanent);
                     break;
             }
         }

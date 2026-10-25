@@ -29,7 +29,7 @@ namespace KeybindsPlus.Services
             subclassDelegate = WndProc;
 
             // Run WindowSubclass on framework thread
-            framework.RunOnFrameworkThread(() =>
+            framework.Run(() =>
             {
                 var success = NativeMethods.SetWindowSubclass(gameHwnd, subclassDelegate, SubclassId, IntPtr.Zero);
                 Plugin.Log.Verbose($"SetWindowSubclass result: {success}");
@@ -61,7 +61,7 @@ namespace KeybindsPlus.Services
 
                             // Consume input if:
                             // 1. The plugin is recording keybinds
-                            // 2. Pressed key matched a active keybind (isHandled = true)
+                            // 2. Pressed key matched an active keybind (isHandled = true)
                             if (isRecording || isHandled)
                                 return IntPtr.Zero;
                         }
@@ -98,7 +98,7 @@ namespace KeybindsPlus.Services
                         var vkShort = (ushort)((wParam.ToInt64() >> 16) & 0xFFFF);
                         var vkCode = vkShort == 1 ? VirtualKey.XBUTTON1 : VirtualKey.XBUTTON2;
                         if (HandleMouseButton(vkCode, true, isRecording))
-                            return (IntPtr)1; // Processed WM_XBUTTONDOWN returns TRUE
+                            return 1; // Processed WM_XBUTTONDOWN returns TRUE
                         break;
                     }
                 case NativeMethods.WM_XBUTTONUP:
@@ -106,7 +106,7 @@ namespace KeybindsPlus.Services
                         var vkShort = (ushort)((wParam.ToInt64() >> 16) & 0xFFFF);
                         var vkCode = vkShort == 1 ? VirtualKey.XBUTTON1 : VirtualKey.XBUTTON2;
                         if (HandleMouseButton(vkCode, false, isRecording))
-                            return (IntPtr)1;
+                            return 1;
                         break;
                     }
             }

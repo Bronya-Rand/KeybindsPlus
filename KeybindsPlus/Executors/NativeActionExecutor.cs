@@ -11,9 +11,9 @@ namespace KeybindsPlus.Executors
         /// Executes the window action for the specified agent IDs.
         /// </summary>
         /// <param name="agentIds">The list of agent IDs for which to execute the window action.</param>
-        public void ExecuteWindow(List<AgentId> agentIds)
+        public static void ExecuteWindow(List<AgentId> agentIds)
         {
-            Plugin.Framework.RunOnFrameworkThread(() =>
+            Plugin.Framework.Run(() =>
             {
                 var agentModule = AgentModule.Instance();
                 if (agentModule == null)
@@ -47,9 +47,9 @@ namespace KeybindsPlus.Executors
                 }
             });
         }
-        public void ExecuteHotbarSlot(uint hotbarId, uint slotId)
+        public static void ExecuteHotbarSlot(uint hotbarId, uint slotId)
         {
-            Plugin.Framework.RunOnFrameworkThread(() =>
+            Plugin.Framework.Run(() =>
             {
                 var hotbarModule = RaptureHotbarModule.Instance();
                 if (hotbarModule == null)
@@ -82,9 +82,9 @@ namespace KeybindsPlus.Executors
                 hotbarModule->ExecuteSlot(slot);
             });
         }
-        public void ExecutePetHotbarSlot(uint slotId)
+        public static void ExecutePetHotbarSlot(uint slotId)
         {
-            Plugin.Framework.RunOnFrameworkThread(() =>
+            Plugin.Framework.Run(() =>
             {
                 var hotbarModule = RaptureHotbarModule.Instance();
                 if (hotbarModule == null)
@@ -106,9 +106,9 @@ namespace KeybindsPlus.Executors
                 hotbarModule->ExecuteSlot(&slot);
             });
         }
-        public void ExecuteDutyAction(uint actionId)
+        public static void ExecuteDutyAction(uint actionId)
         {
-            Plugin.Framework.RunOnFrameworkThread(() =>
+            Plugin.Framework.Run(() =>
             {
                 var hotbarModule = RaptureHotbarModule.Instance();
                 if (hotbarModule == null)
