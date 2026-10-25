@@ -25,8 +25,10 @@ public class KeybindSetModal
     private Action<KeyChord>? onChordSaved;
 
     #region Conflict Info
+
     private KeyConflictInfo? currentConflict;
     private Func<KeyChord, KeyConflictInfo?>? onConflict;
+
     #endregion
 
     public bool IsListening => isOpen && isListening;
@@ -44,8 +46,8 @@ public class KeybindSetModal
         onConflict = checkConflict;
         workingChord = new KeyChord(sourceChord.Key, sourceChord.CtrlSide, sourceChord.AltSide, sourceChord.ShiftSide);
         isDirectional = sourceChord.CtrlSide is ModifierSide.Left or ModifierSide.Right
-            || sourceChord.ShiftSide is ModifierSide.Left or ModifierSide.Right
-            || sourceChord.AltSide is ModifierSide.Left or ModifierSide.Right;
+                        || sourceChord.ShiftSide is ModifierSide.Left or ModifierSide.Right
+                        || sourceChord.AltSide is ModifierSide.Left or ModifierSide.Right;
 
         currentConflict = null;
         shouldOpenModal = true;
@@ -53,23 +55,24 @@ public class KeybindSetModal
         isListening = false;
     }
 
-    public void Open(KeybindEntry entry,
+    public void Open(
+        KeybindEntry entry,
         int slot,
         Func<KeyChord, KeyConflictInfo?>? checkConflict = null,
         Action? onSave = null)
     {
         var sourceChord = slot == 1 ? entry.PrimaryKey : entry.SecondaryKey;
         Open(entry.Name, sourceChord, slot,
-        checkConflict,
-        updated =>
-        {
-            if (slot == 1)
-                entry.PrimaryKey = updated;
-            else
-                entry.SecondaryKey = updated;
+             checkConflict,
+             updated =>
+             {
+                 if (slot == 1)
+                     entry.PrimaryKey = updated;
+                 else
+                     entry.SecondaryKey = updated;
 
-            onSave?.Invoke();
-        });
+                 onSave?.Invoke();
+             });
     }
 
     /// <summary>
@@ -172,9 +175,11 @@ public class KeybindSetModal
             var isAlt = NativeMethods.IsKeyDown(VirtualKey.MENU);
 
             if (isCtrl || isShift || isAlt)
-                ImGui.TextColored(new Vector4(1.0f, 0.8f, 0.2f, 1.0f), "Holding modifier... Press your primary key (e.g. F13, P, Mouse 4).");
+                ImGui.TextColored(new Vector4(1.0f, 0.8f, 0.2f, 1.0f),
+                                  "Holding modifier... Press your primary key (e.g. F13, P, Mouse 4).");
             else
-                ImGui.TextColored(new Vector4(0.4f, 0.8f, 1.0f, 1.0f), "Listening for keypress... (Press any key or key combo)");
+                ImGui.TextColored(new Vector4(0.4f, 0.8f, 1.0f, 1.0f),
+                                  "Listening for keypress... (Press any key or key combo)");
         }
         else
         {
@@ -186,9 +191,11 @@ public class KeybindSetModal
         {
             ImGui.Spacing();
             if (currentConflict.IsNativeGameBind)
-                ImGui.TextColored(ImGuiColors.DalamudYellow, $"'{workingChord.GetDisplayString()}' is already bound to a native game action.\nApplying this keybind will override the game's keybind.");
+                ImGui.TextColored(ImGuiColors.DalamudYellow,
+                                  $"'{workingChord.GetDisplayString()}' is already bound to a native game action.\nApplying this keybind will override the game's keybind.");
             else
-                ImGui.TextColored(ImGuiColors.DalamudRed, $"{workingChord.GetDisplayString()} is already bound to \'{currentConflict.OwnerName}\' (Keybind {currentConflict.Slot}).");
+                ImGui.TextColored(ImGuiColors.DalamudRed,
+                                  $"{workingChord.GetDisplayString()} is already bound to \'{currentConflict.OwnerName}\' (Keybind {currentConflict.Slot}).");
         }
 
         // Use Directional Keys
@@ -214,11 +221,11 @@ public class KeybindSetModal
 
         // Highlight box with active border when listening
         using var borderCol = isListening
-            ? ImRaii.PushColor(ImGuiCol.Border, new Vector4(1.0f, 0.8f, 0.2f, 1.0f))
-            : null;
+                                  ? ImRaii.PushColor(ImGuiCol.Border, new Vector4(1.0f, 0.8f, 0.2f, 1.0f))
+                                  : null;
         using var borderStyle = isListening
-            ? ImRaii.PushStyle(ImGuiStyleVar.FrameBorderSize, 2.0f)
-            : null;
+                                    ? ImRaii.PushStyle(ImGuiStyleVar.FrameBorderSize, 2.0f)
+                                    : null;
 
         // Keybind Button
         var buttonWidth = ImGui.GetContentRegionAvail().X - 110.0f;
@@ -229,7 +236,9 @@ public class KeybindSetModal
 
         if (ImGui.IsItemHovered())
         {
-            ImGui.SetTooltip(isListening ? "Listening... Press any key or click to stop." : "Click to record a new key combination.");
+            ImGui.SetTooltip(isListening
+                                 ? "Listening... Press any key or click to stop."
+                                 : "Click to record a new key combination.");
         }
 
         ImGui.SameLine();
@@ -250,8 +259,9 @@ public class KeybindSetModal
     {
         using (ImRaii.Disabled(isListening))
         {
-            var saveButtonLabel = currentConflict != null && !currentConflict.IsNativeGameBind
-                ? "Unbind and Save" : "Save";
+            var saveButtonLabel = currentConflict is { IsNativeGameBind: false }
+                                      ? "Unbind and Save"
+                                      : "Save";
 
             if (ImGui.Button(saveButtonLabel))
             {
@@ -295,7 +305,8 @@ public class KeybindSetModal
         var isRightShift = NativeMethods.IsKeyDown(VirtualKey.RSHIFT);
 
         var hasModifier = isCtrl || isShift || isAlt;
-        var hasDirectionalModifier = isLeftCtrl || isRightCtrl || isLeftAlt || isRightAlt || isLeftShift || isRightShift;
+        var hasDirectionalModifier =
+            isLeftCtrl || isRightCtrl || isLeftAlt || isRightAlt || isLeftShift || isRightShift;
 
         if (hasModifier || hasDirectionalModifier)
         {

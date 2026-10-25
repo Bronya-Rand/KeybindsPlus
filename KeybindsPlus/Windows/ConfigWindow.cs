@@ -8,6 +8,7 @@ namespace KeybindsPlus.Windows;
 public class ConfigWindow : Window, IDisposable
 {
     private readonly Configuration configuration;
+
     public ConfigWindow(Plugin plugin) : base($"{Constants.PluginName} Configuration###QB_Settings")
     {
         Flags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar |
@@ -29,6 +30,7 @@ public class ConfigWindow : Window, IDisposable
             configuration.HideUnsupportedKeybinds = hideUnsupported;
             configuration.Save();
         }
+
         if (ImGui.IsItemHovered())
             ImGui.SetTooltip($"Hides game keybinds that are not supported by {Constants.PluginName}.");
     }

@@ -3,7 +3,6 @@ using System.Text;
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Utility;
 using KeybindsPlus.Extensions;
-using KeybindsPlus.Models;
 
 namespace KeybindsPlus.Models
 {
@@ -14,7 +13,13 @@ namespace KeybindsPlus.Models
     /// Any defaults to Ctrl/Shift/Alt while None means not required.
     /// Left and Right are for specifying a specific side of the keyboard for the modifier key.
     /// </remarks>
-    public enum ModifierSide { None, Left, Right, Any };
+    public enum ModifierSide
+    {
+        None,
+        Left,
+        Right,
+        Any
+    };
 
     [Serializable]
     public class KeyChord : IEquatable<KeyChord>
@@ -28,7 +33,9 @@ namespace KeybindsPlus.Models
 
         public KeyChord() { } // For serialization
 
-        public KeyChord(VirtualKey key, ModifierSide ctrl = ModifierSide.None, ModifierSide alt = ModifierSide.None, ModifierSide shift = ModifierSide.None)
+        public KeyChord(
+            VirtualKey key, ModifierSide ctrl = ModifierSide.None, ModifierSide alt = ModifierSide.None,
+            ModifierSide shift = ModifierSide.None)
         {
             Key = key;
             CtrlSide = ctrl;
@@ -55,6 +62,7 @@ namespace KeybindsPlus.Models
             ShiftSide = ModifierSide.None;
             AltSide = ModifierSide.None;
         }
+
         public string GetDisplayString()
         {
             if (IsEmpty) return "Not Bound";
@@ -87,6 +95,7 @@ namespace KeybindsPlus.Models
             sb.Append(Key.GetFriendlyName());
             return sb.ToString();
         }
+
         public bool Equals(KeyChord? other) =>
             other != null && Key == other.Key && CtrlSide == other.CtrlSide &&
             AltSide == other.AltSide && ShiftSide == other.ShiftSide;
@@ -107,23 +116,31 @@ namespace KeybindsPlus.Models
 
             foreach (var part in parts)
             {
-                if (part.Equals("Left Ctrl", StringComparison.OrdinalIgnoreCase) || part.Equals("LCtrl", StringComparison.OrdinalIgnoreCase))
+                if (part.Equals("Left Ctrl", StringComparison.OrdinalIgnoreCase) ||
+                    part.Equals("LCtrl", StringComparison.OrdinalIgnoreCase))
                     ctrl = ModifierSide.Left;
-                else if (part.Equals("Right Ctrl", StringComparison.OrdinalIgnoreCase) || part.Equals("RCtrl", StringComparison.OrdinalIgnoreCase))
+                else if (part.Equals("Right Ctrl", StringComparison.OrdinalIgnoreCase) ||
+                         part.Equals("RCtrl", StringComparison.OrdinalIgnoreCase))
                     ctrl = ModifierSide.Right;
-                else if (part.Equals("Ctrl", StringComparison.OrdinalIgnoreCase) || part.Equals("Control", StringComparison.OrdinalIgnoreCase))
+                else if (part.Equals("Ctrl", StringComparison.OrdinalIgnoreCase) ||
+                         part.Equals("Control", StringComparison.OrdinalIgnoreCase))
                     ctrl = ModifierSide.Any;
-                else if (part.Equals("Left Shift", StringComparison.OrdinalIgnoreCase) || part.Equals("LShift", StringComparison.OrdinalIgnoreCase))
+                else if (part.Equals("Left Shift", StringComparison.OrdinalIgnoreCase) ||
+                         part.Equals("LShift", StringComparison.OrdinalIgnoreCase))
                     shift = ModifierSide.Left;
-                else if (part.Equals("Right Shift", StringComparison.OrdinalIgnoreCase) || part.Equals("RShift", StringComparison.OrdinalIgnoreCase))
+                else if (part.Equals("Right Shift", StringComparison.OrdinalIgnoreCase) ||
+                         part.Equals("RShift", StringComparison.OrdinalIgnoreCase))
                     shift = ModifierSide.Right;
                 else if (part.Equals("Shift", StringComparison.OrdinalIgnoreCase))
                     shift = ModifierSide.Any;
-                else if (part.Equals("Left Alt", StringComparison.OrdinalIgnoreCase) || part.Equals("LAlt", StringComparison.OrdinalIgnoreCase))
+                else if (part.Equals("Left Alt", StringComparison.OrdinalIgnoreCase) ||
+                         part.Equals("LAlt", StringComparison.OrdinalIgnoreCase))
                     alt = ModifierSide.Left;
-                else if (part.Equals("Right Alt", StringComparison.OrdinalIgnoreCase) || part.Equals("RAlt", StringComparison.OrdinalIgnoreCase))
+                else if (part.Equals("Right Alt", StringComparison.OrdinalIgnoreCase) ||
+                         part.Equals("RAlt", StringComparison.OrdinalIgnoreCase))
                     alt = ModifierSide.Right;
-                else if (part.Equals("Alt", StringComparison.OrdinalIgnoreCase) || part.Equals("Menu", StringComparison.OrdinalIgnoreCase))
+                else if (part.Equals("Alt", StringComparison.OrdinalIgnoreCase) ||
+                         part.Equals("Menu", StringComparison.OrdinalIgnoreCase))
                     alt = ModifierSide.Any;
                 else if (KeyExtensions.TryResolveVirtualKey(part, out var vk))
                     parsedKey = vk;
@@ -136,13 +153,14 @@ namespace KeybindsPlus.Models
             return true;
         }
 
-        private static bool MatchesModifer(ModifierSide required, bool isLeftPressed, bool isRightPressed) => required switch
-        {
-            ModifierSide.None => !isLeftPressed && !isRightPressed,
-            ModifierSide.Left => isLeftPressed,
-            ModifierSide.Right => isRightPressed,
-            ModifierSide.Any => isLeftPressed || isRightPressed,
-            _ => false,
-        };
+        private static bool MatchesModifer(ModifierSide required, bool isLeftPressed, bool isRightPressed) =>
+            required switch
+            {
+                ModifierSide.None => !isLeftPressed && !isRightPressed,
+                ModifierSide.Left => isLeftPressed,
+                ModifierSide.Right => isRightPressed,
+                ModifierSide.Any => isLeftPressed || isRightPressed,
+                _ => false,
+            };
     }
 }

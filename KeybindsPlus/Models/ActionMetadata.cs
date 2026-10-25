@@ -12,6 +12,7 @@ namespace KeybindsPlus.Models
         System,
         Hotbar
     }
+
     public static class ActionCategoryExtensions
     {
         public static string GetFriendlyName(this ActionCategory category)
@@ -29,8 +30,8 @@ namespace KeybindsPlus.Models
             };
         }
     }
-    public readonly record struct ActionMetadata
-    (
+
+    public readonly record struct ActionMetadata(
         string FriendlyName,
         ActionCategory Category,
         bool IsSupported = true,

@@ -5,7 +5,7 @@ using KeybindsPlus.Helpers;
 
 namespace KeybindsPlus.Executors
 {
-    public enum RotateMode : int
+    public enum RotateMode
     {
         Back = -1,
         None = 0,
@@ -17,9 +17,9 @@ namespace KeybindsPlus.Executors
     /// </summary>
     public sealed unsafe class ChatChannelExecutor
     {
-        public void SetChatChannel(int channelIdx, uint? linkshellIdx, bool isPermanent = true)
+        public static void SetChatChannel(int channelIdx, uint? linkshellIdx, bool isPermanent = true)
         {
-            Plugin.Framework.RunOnFrameworkThread(() =>
+            Plugin.Framework.Run(() =>
             {
                 var chatModule = RaptureShellModule.Instance();
                 if (chatModule == null)
@@ -34,12 +34,14 @@ namespace KeybindsPlus.Executors
                 target->Dtor(true);
             });
         }
+
         public void ReplyTell()
         {
             // TODO: Implement Chat Swap To Tell
         }
+
         public void RotateLinkshell(RotateMode mode) =>
-            Plugin.Framework.RunOnFrameworkThread(() =>
+            Plugin.Framework.Run(() =>
             {
                 var module = UIModule.Instance();
                 if (module == null)
@@ -48,10 +50,12 @@ namespace KeybindsPlus.Executors
                     LogHelper.PrintUnavailable();
                     return;
                 }
+
                 module->RotateLinkshellHistory((int)mode);
             });
+
         public void RotateCrossworldLinkshell(RotateMode mode) =>
-            Plugin.Framework.RunOnFrameworkThread(() =>
+            Plugin.Framework.Run(() =>
             {
                 var module = UIModule.Instance();
                 if (module == null)
@@ -60,6 +64,7 @@ namespace KeybindsPlus.Executors
                     LogHelper.PrintUnavailable();
                     return;
                 }
+
                 module->RotateCrossLinkshellHistory((int)mode);
             });
     }

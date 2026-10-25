@@ -7,9 +7,10 @@ namespace KeybindsPlus.Ipc;
 
 public sealed class ExternalActionRegistry
 {
-    private readonly ConcurrentDictionary<(string PluginName, string ActionId), ExternalActionDefinition> definitions = new();
+    private readonly ConcurrentDictionary<(string PluginName, string ActionId), ExternalActionDefinition> definitions =
+        new();
 
-    public ExternalActionDefinition Register(
+    public void Register(
         string pluginName,
         string actionId,
         string displayName,
@@ -17,7 +18,7 @@ public sealed class ExternalActionRegistry
         KeyChord? suggestedDefault = null)
     {
         var key = (pluginName, actionId);
-        return definitions.AddOrUpdate(
+        definitions.AddOrUpdate(
             key,
             _ => new ExternalActionDefinition
             {

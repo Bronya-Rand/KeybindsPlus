@@ -17,19 +17,25 @@ namespace KeybindsPlus.Interop
     public static unsafe class TargetingInterop
     {
         private const float MaxDistanceToTarget = 49.5f; // Maximum distance the game can target someone legitimately
-        private const float LineOfSightOffset = 2f; // Offset to raise the raycast origin above the ground (borrowed from BetterTargetingSystem)
+
+        private const float
+            LineOfSightOffset =
+                2f; // Offset to raise the raycast origin above the ground (borrowed from BetterTargetingSystem)
+
         private const uint AutoAttackActionId = 142; // The action ID for auto-attack
 
         public static bool CanAttack(IGameObject target)
         {
-            if (target.Address == nint.Zero) return false;
-            return ActionManager.CanUseActionOnTarget(AutoAttackActionId, (GameObject*)target.Address);
+            return target.Address != nint.Zero &&
+                   ActionManager.CanUseActionOnTarget(AutoAttackActionId, (GameObject*)target.Address);
         }
+
         public static float GetDistanceToPlayer(IGameObject player, IGameObject target)
         {
             var distance = Vector3.Distance(player.Position, target.Position) - target.HitboxRadius;
             return MathF.Max(0f, distance);
         }
+
         public static bool InLineOfSight(IGameObject target, bool useCamera = true)
         {
             var framework = CSFramework.Instance();
@@ -45,9 +51,11 @@ namespace KeybindsPlus.Interop
                 var cameraManager = CameraManager.Instance();
                 if (cameraManager == null || cameraManager->CurrentCamera == null)
                 {
-                    LogHelper.LogWarning("CameraManager.Instance() or camera returned null, cannot check line of sight.");
+                    LogHelper.LogWarning(
+                        "CameraManager.Instance() or camera returned null, cannot check line of sight.");
                     return false;
                 }
+
                 sourcePos = cameraManager->CurrentCamera->Object.Position;
             }
             else
@@ -73,6 +81,7 @@ namespace KeybindsPlus.Interop
                 LogHelper.LogWarning("CS GameObject for target returned null, cannot check line of sight.");
                 return false;
             }
+
             var targetPos = targetObject->Position;
             targetPos.Y += LineOfSightOffset;
 
@@ -92,9 +101,10 @@ namespace KeybindsPlus.Interop
                 distance,
                 1,
                 flags
-                );
+            );
             return !isLineOfSightBlocked;
         }
+
         public static bool WithinRange(IGameObject player, IGameObject target) =>
             GetDistanceToPlayer(player, target) <= MaxDistanceToTarget;
     }

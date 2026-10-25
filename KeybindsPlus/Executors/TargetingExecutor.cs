@@ -19,20 +19,20 @@ namespace KeybindsPlus.Executors
     public sealed unsafe class TargetingExecutor
     {
         private volatile int lastAllianceMemberIndex = -1; // For cycling through alliance members
-        private volatile int lastEnmityIndex = -1; // For cycling through enmity list
-        private List<uint> cachedEnemyCycleIds = []; // For cycling through enemies
+        private volatile int lastEnmityIndex = -1;         // For cycling through enmity list
+        private List<uint> cachedEnemyCycleIds = [];       // For cycling through enemies
         private DateTime lastEnemyCycleTime = DateTime.MinValue;
         private static readonly TimeSpan CycleResetTimeout = TimeSpan.FromSeconds(2.5f);
 
         public void Execute(TargetingActions action)
         {
-            Plugin.Framework.RunOnFrameworkThread(() =>
+            Plugin.Framework.Run(() =>
             {
                 switch (action)
                 {
                     // Party List Targeting
                     case >= TargetingActions.TargetPartyMember1 and <= TargetingActions.TargetPartyMember8:
-                        var partyIdx = (int)(action - TargetingActions.TargetPartyMember1);
+                        var partyIdx = (action - TargetingActions.TargetPartyMember1);
                         TargetPartyMember(partyIdx);
                         break;
                     case TargetingActions.TargetAssist:
@@ -61,10 +61,10 @@ namespace KeybindsPlus.Executors
                         TargetNearestEnemy();
                         break;
                     case TargetingActions.TargetNearestPC:
-                        TargetNearestPC();
+                        TargetNearestPc();
                         break;
                     case TargetingActions.TargetNearestNPC:
-                        TargetNearestNPCObject();
+                        TargetNearestNpcObject();
                         break;
                     case TargetingActions.TargetPet:
                         ExecuteTargetPlaceholderCommand("<pet>");
@@ -74,15 +74,16 @@ namespace KeybindsPlus.Executors
                         break;
 
                     case >= TargetingActions.TargetAlliance1_Member1 and <= TargetingActions.TargetAlliance1_Member8:
-                        var memberIdx1 = (int)(action - TargetingActions.TargetAlliance1_Member1);
+                        var memberIdx1 = (action - TargetingActions.TargetAlliance1_Member1);
                         TargetAllianceListMember(1, memberIdx1);
                         break;
                     case >= TargetingActions.TargetAlliance2_Member1 and <= TargetingActions.TargetAlliance2_Member8:
-                        var memberIdx2 = (int)(action - TargetingActions.TargetAlliance2_Member1);
+                        var memberIdx2 = (action - TargetingActions.TargetAlliance2_Member1);
                         TargetAllianceListMember(2, memberIdx2);
                         break;
-                    case >= TargetingActions.TargetEnemyPartyMember1 and <= TargetingActions.TargetEnemyPartyMember5: // Crystalline Conflict
-                        var enemyPartyIdx = (int)(action - TargetingActions.TargetEnemyPartyMember1);
+                    case >= TargetingActions.TargetEnemyPartyMember1 and <= TargetingActions.TargetEnemyPartyMember5
+                        : // Crystalline Conflict
+                        var enemyPartyIdx = (action - TargetingActions.TargetEnemyPartyMember1);
                         ExecuteTargetPlaceholderCommand($"<e{enemyPartyIdx + 1}>");
                         break;
 
@@ -105,6 +106,7 @@ namespace KeybindsPlus.Executors
                 }
             });
         }
+
         private static void TargetPartyMember(int partyIdx)
         {
             // Directly target the party member using the party list
@@ -118,6 +120,7 @@ namespace KeybindsPlus.Executors
             // Fallback to command
             ExecuteTargetPlaceholderCommand($"<{partyIdx + 1}>");
         }
+
         private static void TargetAssist()
         {
             if (Plugin.TargetManager.Target?.TargetObject is { } targetOfTarget)
@@ -128,6 +131,7 @@ namespace KeybindsPlus.Executors
 
             ExecuteTargetPlaceholderCommand("<tt>");
         }
+
         private static void TargetLastTarget()
         {
             if (Plugin.TargetManager.PreviousTarget is { } lastTarget)
@@ -135,8 +139,10 @@ namespace KeybindsPlus.Executors
                 Plugin.TargetManager.Target = lastTarget;
                 return;
             }
+
             ExecuteTargetPlaceholderCommand("<lt>");
         }
+
         private static void TargetFocusTarget()
         {
             if (Plugin.TargetManager.FocusTarget is { } focusTarget)
@@ -147,12 +153,14 @@ namespace KeybindsPlus.Executors
 
             ExecuteTargetPlaceholderCommand("<f>");
         }
+
         private static void ExecuteTargetPlaceholderCommand(string placeholder)
         {
             var targetObj = PronounInterop.GetByPlaceholder(placeholder);
             if (targetObj != null)
                 Plugin.TargetManager.Target = targetObj;
         }
+
         private void ExecuteTargetingModeOrCycle(TargetingActions action)
         {
             switch (action)
@@ -192,9 +200,11 @@ namespace KeybindsPlus.Executors
                     break;
             }
         }
-        private void TargetAllianceListMember(int allianceListNumber, int memberIdx) // 1 or 2 (or 3 for small alliance)
+
+        private static void
+            TargetAllianceListMember(int allianceListNumber, int memberIdx) // 1 or 2 (or 3 for small alliance)
         {
-            Plugin.Framework.RunOnFrameworkThread(() =>
+            Plugin.Framework.Run(() =>
             {
                 var array = AllianceListNumberArray.Instance();
                 if (array == null)
@@ -207,7 +217,8 @@ namespace KeybindsPlus.Executors
                 var groupIdx = allianceListNumber - 1; // Convert to 0-based index
                 if (groupIdx < 0 || groupIdx >= array->PartyCount)
                 {
-                    LogHelper.LogError($"Invalid alliance list number: {allianceListNumber}. Must be 1 or {array->PartyCount}.");
+                    LogHelper.LogError(
+                        $"Invalid alliance list number: {allianceListNumber}. Must be 1 or {array->PartyCount}.");
                     LogHelper.PrintUnavailable();
                     return;
                 }
@@ -215,7 +226,8 @@ namespace KeybindsPlus.Executors
                 var group = array->Groups[groupIdx];
                 if (memberIdx >= group.MemberCount)
                 {
-                    LogHelper.LogWarning($"Invalid member index: {memberIdx}. Alliance list {allianceListNumber} has {group.MemberCount} members.");
+                    LogHelper.LogWarning(
+                        $"Invalid member index: {memberIdx}. Alliance list {allianceListNumber} has {group.MemberCount} members.");
                     return;
                 }
 
@@ -238,12 +250,13 @@ namespace KeybindsPlus.Executors
             var array = AllianceListNumberArray.Instance();
             if (array == null)
             {
-                LogHelper.LogError("AllianceListNumberArray.Instance() returned null, cannot get alliance list group index.");
+                LogHelper.LogError(
+                    "AllianceListNumberArray.Instance() returned null, cannot get alliance list group index.");
                 LogHelper.PrintUnavailable();
                 return;
             }
 
-            int? listIdx = listNumber.HasValue ? listNumber.Value - 1 : null; // Convert to 0-based index if specified
+            var listIdx = listNumber - 1; // Convert to 0-based index if specified
             if (listIdx != null && (listIdx < 0 || listIdx >= array->PartyCount))
             {
                 LogHelper.LogError($"Invalid alliance list number: {listNumber}. Must be 1 or {array->PartyCount}.");
@@ -254,8 +267,8 @@ namespace KeybindsPlus.Executors
             // Setup the alliance list to cycle through based on the specified list index
             var members = new List<AllianceListMemberNumberArray>();
             var groupIndices = listNumber.HasValue
-                ? [listIdx!.Value]
-                : new[] { 0, 1, 2 };
+                                   ? [listIdx!.Value]
+                                   : new[] { 0, 1, 2 };
 
             foreach (var g in groupIndices)
             {
@@ -264,11 +277,13 @@ namespace KeybindsPlus.Executors
                 for (var m = 0; m < group.MemberCount; m++)
                     members.Add(group.Members[m]);
             }
+
             if (members.Count == 0)
             {
                 LogHelper.LogWarning("No members found in the specified alliance list(s).");
                 return;
             }
+
             if (lastAllianceMemberIndex >= members.Count)
                 lastAllianceMemberIndex = -1; // Reset if the last index is out of bounds
 
@@ -283,8 +298,8 @@ namespace KeybindsPlus.Executors
 
             var step = reverse ? -1 : 1;
             var startIdx = lastAllianceMemberIndex == -1
-                ? (reverse ? members.Count - 1 : 0)
-                : (((lastAllianceMemberIndex + step) % members.Count) + members.Count) % members.Count;
+                               ? (reverse ? members.Count - 1 : 0)
+                               : (((lastAllianceMemberIndex + step) % members.Count) + members.Count) % members.Count;
 
             for (var i = 0; i < members.Count; i++)
             {
@@ -307,18 +322,22 @@ namespace KeybindsPlus.Executors
             lastAllianceMemberIndex = -1; // Reset if no targetable members found
             Plugin.TargetManager.Target = null;
         }
+
         private static void TargetNearestEnemy() =>
             TargetNearest(obj => !obj.IsDead &&
-                (obj.ObjectKind == ObjectKind.BattleNpc || obj.ObjectKind == ObjectKind.Pc) &&
-                TargetingInterop.CanAttack(obj));
-        private static void TargetNearestPC() =>
+                                 (obj.ObjectKind == ObjectKind.BattleNpc || obj.ObjectKind == ObjectKind.Pc) &&
+                                 TargetingInterop.CanAttack(obj));
+
+        private static void TargetNearestPc() =>
             TargetNearest(obj => obj.ObjectKind == ObjectKind.Pc);
-        private static void TargetNearestNPCObject() =>
+
+        private static void TargetNearestNpcObject() =>
             TargetNearest(obj => obj.ObjectKind is ObjectKind.EventNpc
-                or ObjectKind.EventObj
-                or ObjectKind.AreaObject
-                or ObjectKind.GatheringPoint
-                or ObjectKind.Aetheryte);
+                                     or ObjectKind.EventObj
+                                     or ObjectKind.AreaObject
+                                     or ObjectKind.GatheringPoint
+                                     or ObjectKind.Aetheryte);
+
         private static void FaceTarget()
         {
             var player = Plugin.ObjectTable.LocalPlayer;
@@ -332,6 +351,7 @@ namespace KeybindsPlus.Executors
             if (playerCharacter != null)
                 playerCharacter->GameObject.Rotation = angle;
         }
+
         private void CycleEnemies(bool reverse = false)
         {
             var player = Plugin.ObjectTable.LocalPlayer;
@@ -339,15 +359,15 @@ namespace KeybindsPlus.Executors
 
             // Get all valid enemies
             var currentCandidates = Plugin.ObjectTable
-                .Where(obj => obj.IsValid() &&
-                    obj.IsTargetable &&
-                    !obj.IsDead &&
-                    (obj.ObjectKind == ObjectKind.BattleNpc || obj.ObjectKind == ObjectKind.Pc) &&
-                    obj.EntityId != player.EntityId &&
-                    TargetingInterop.WithinRange(player, obj) &&
-                    TargetingInterop.CanAttack(obj) &&
-                    TargetingInterop.InLineOfSight(obj))
-                .ToList();
+                                          .Where(obj => obj.IsValid() &&
+                                                        obj is { IsTargetable: true, IsDead: false } &&
+                                                        (obj.ObjectKind == ObjectKind.BattleNpc ||
+                                                         obj.ObjectKind == ObjectKind.Pc) &&
+                                                        obj.EntityId != player.EntityId &&
+                                                        TargetingInterop.WithinRange(player, obj) &&
+                                                        TargetingInterop.CanAttack(obj) &&
+                                                        TargetingInterop.InLineOfSight(obj))
+                                          .ToList();
 
             if (currentCandidates.Count == 0)
             {
@@ -355,32 +375,38 @@ namespace KeybindsPlus.Executors
                 cachedEnemyCycleIds.Clear();
                 return;
             }
+
             var currentCandidateIds = currentCandidates.Select(obj => obj.EntityId).ToHashSet();
 
             // Reset cache if cache is empty or cycle timeout has passed
             var now = DateTime.UtcNow;
             if (now - lastEnemyCycleTime > CycleResetTimeout || cachedEnemyCycleIds.Count == 0)
             {
-                cachedEnemyCycleIds = currentCandidates
-                    .OrderBy(obj => TargetingInterop.GetDistanceToPlayer(player, obj))
-                    .Select(obj => obj.EntityId)
-                    .ToList();
+                cachedEnemyCycleIds =
+                [
+                    .. currentCandidates
+                       .OrderBy(obj => TargetingInterop.GetDistanceToPlayer(player, obj))
+                       .Select(obj => obj.EntityId)
+                ];
             }
             else
             {
                 // Remove any cached IDs that are no longer valid
-                cachedEnemyCycleIds = cachedEnemyCycleIds
-                    .Where(id => currentCandidateIds.Contains(id))
-                    .ToList();
+                cachedEnemyCycleIds =
+                [
+                    .. cachedEnemyCycleIds
+                        .Where(currentCandidateIds.Contains)
+                ];
 
                 // Add any new valid enemies to the cache
                 var newEnemies = currentCandidates
-                    .Where(obj => !cachedEnemyCycleIds.Contains(obj.EntityId))
-                    .OrderBy(obj => TargetingInterop.GetDistanceToPlayer(player, obj))
-                    .Select(obj => obj.EntityId);
+                                 .Where(obj => !cachedEnemyCycleIds.Contains(obj.EntityId))
+                                 .OrderBy(obj => TargetingInterop.GetDistanceToPlayer(player, obj))
+                                 .Select(obj => obj.EntityId);
 
                 cachedEnemyCycleIds.AddRange(newEnemies);
             }
+
             lastEnemyCycleTime = now;
             if (cachedEnemyCycleIds.Count == 0) return;
 
@@ -400,10 +426,11 @@ namespace KeybindsPlus.Executors
             // Target the next enemy in the cycle
             var nextTargetId = cachedEnemyCycleIds[nextIndex];
             var nextTarget = currentCandidates.FirstOrDefault(obj => obj.EntityId == nextTargetId) ??
-                Plugin.ObjectTable.SearchByEntityId(nextTargetId);
+                             Plugin.ObjectTable.SearchByEntityId(nextTargetId);
             if (nextTarget != null)
                 Plugin.TargetManager.Target = nextTarget;
         }
+
         private void CycleEnmityList(bool reverse = false)
         {
             var array = EnemyListNumberArray.Instance();
@@ -417,6 +444,7 @@ namespace KeybindsPlus.Executors
                 if (enemy.EntityId != 0)
                     enemies.Add(enemy);
             }
+
             if (lastEnmityIndex >= enemies.Count)
                 lastEnmityIndex = -1; // Reset if the last index is out of bounds
 
@@ -429,8 +457,8 @@ namespace KeybindsPlus.Executors
 
             var step = reverse ? -1 : 1;
             var startIdx = lastEnmityIndex == -1
-                ? (reverse ? enemies.Count - 1 : 0)
-                : (((lastEnmityIndex + step) % enemies.Count) + enemies.Count) % enemies.Count;
+                               ? (reverse ? enemies.Count - 1 : 0)
+                               : (((lastEnmityIndex + step) % enemies.Count) + enemies.Count) % enemies.Count;
 
             for (var i = 0; i < enemies.Count; i++)
             {
@@ -452,18 +480,19 @@ namespace KeybindsPlus.Executors
             lastEnmityIndex = -1; // Reset if no targetable enemies found
             Plugin.TargetManager.Target = null;
         }
+
         private static void TargetNearest(Func<IGameObject, bool> filter)
         {
             var player = Plugin.ObjectTable.LocalPlayer;
             if (player == null) return;
 
             var nearest = Plugin.ObjectTable
-                .Where(obj => obj.IsValid() && obj.IsTargetable &&
-                    obj.EntityId != player.EntityId &&
-                    TargetingInterop.WithinRange(player, obj) &&
-                    filter(obj))
-                .OrderBy(obj => TargetingInterop.GetDistanceToPlayer(player, obj))
-                .FirstOrDefault();
+                                .Where(obj => obj.IsValid() && obj.IsTargetable &&
+                                              obj.EntityId != player.EntityId &&
+                                              TargetingInterop.WithinRange(player, obj) &&
+                                              filter(obj))
+                                .OrderBy(obj => TargetingInterop.GetDistanceToPlayer(player, obj))
+                                .FirstOrDefault();
 
             if (nearest != null && TargetingInterop.InLineOfSight(nearest))
                 Plugin.TargetManager.Target = nearest;

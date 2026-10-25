@@ -39,7 +39,8 @@ internal sealed class IpcService : IDisposable
         apiVersionProvider = Plugin.PluginInterface.GetIpcProvider<int>(ApiVersionLabel);
         apiVersionProvider.RegisterFunc(() => ApiVersion);
 
-        registerActionProvider = Plugin.PluginInterface.GetIpcProvider<string, string, string, string, string?, bool>(RegisterActionLabel);
+        registerActionProvider =
+            Plugin.PluginInterface.GetIpcProvider<string, string, string, string, string?, bool>(RegisterActionLabel);
         registerActionProvider.RegisterFunc(RegisterAction);
 
         unregisterActionProvider = Plugin.PluginInterface.GetIpcProvider<string, string, bool>(UnregisterActionLabel);
@@ -113,6 +114,7 @@ internal sealed class IpcService : IDisposable
             pluginActions = [];
             configuration.ExternalPluginKeybinds[pluginName] = pluginActions;
         }
+
         pluginActions[actionId] = newAssignment;
         configuration.Save();
 

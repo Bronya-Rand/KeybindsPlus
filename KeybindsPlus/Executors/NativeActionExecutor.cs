@@ -11,9 +11,9 @@ namespace KeybindsPlus.Executors
         /// Executes the window action for the specified agent IDs.
         /// </summary>
         /// <param name="agentIds">The list of agent IDs for which to execute the window action.</param>
-        public void ExecuteWindow(List<AgentId> agentIds)
+        public static void ExecuteWindow(List<AgentId> agentIds)
         {
-            Plugin.Framework.RunOnFrameworkThread(() =>
+            Plugin.Framework.Run(() =>
             {
                 var agentModule = AgentModule.Instance();
                 if (agentModule == null)
@@ -28,7 +28,8 @@ namespace KeybindsPlus.Executors
                     var agent = agentModule->GetAgentByInternalId(agentId);
                     if (agent == null)
                     {
-                        LogHelper.LogError($"AgentModule.GetAgentByInternalId({agentId}) returned null, cannot execute window action.");
+                        LogHelper.LogError(
+                            $"AgentModule.GetAgentByInternalId({agentId}) returned null, cannot execute window action.");
                         LogHelper.PrintUnavailable();
                         return;
                     }
@@ -47,9 +48,10 @@ namespace KeybindsPlus.Executors
                 }
             });
         }
-        public void ExecuteHotbarSlot(uint hotbarId, uint slotId)
+
+        public static void ExecuteHotbarSlot(uint hotbarId, uint slotId)
         {
-            Plugin.Framework.RunOnFrameworkThread(() =>
+            Plugin.Framework.Run(() =>
             {
                 var hotbarModule = RaptureHotbarModule.Instance();
                 if (hotbarModule == null)
@@ -62,7 +64,8 @@ namespace KeybindsPlus.Executors
                 var slot = hotbarModule->GetSlotById(hotbarId, slotId);
                 if (slot == null)
                 {
-                    LogHelper.LogError($"RaptureHotbarModule.GetSlotById({hotbarId}, {slotId}) returned null, cannot execute hotbar action.");
+                    LogHelper.LogError(
+                        $"RaptureHotbarModule.GetSlotById({hotbarId}, {slotId}) returned null, cannot execute hotbar action.");
                     LogHelper.PrintUnavailable();
                     return;
                 }
@@ -73,7 +76,8 @@ namespace KeybindsPlus.Executors
                     LogHelper.LogWarning($"Hotbar slot {hotbarId}:{slotId} is empty, cannot execute hotbar action.");
                     return;
                 }
-                else if (!isSlotUsable)
+
+                if (!isSlotUsable)
                 {
                     LogHelper.LogError("Cannot execute action at this time. Slot is not usable.");
                     return;
@@ -82,14 +86,16 @@ namespace KeybindsPlus.Executors
                 hotbarModule->ExecuteSlot(slot);
             });
         }
-        public void ExecutePetHotbarSlot(uint slotId)
+
+        public static void ExecutePetHotbarSlot(uint slotId)
         {
-            Plugin.Framework.RunOnFrameworkThread(() =>
+            Plugin.Framework.Run(() =>
             {
                 var hotbarModule = RaptureHotbarModule.Instance();
                 if (hotbarModule == null)
                 {
-                    LogHelper.LogError("RaptureHotbarModule.Instance() returned null, cannot execute pet hotbar action.");
+                    LogHelper.LogError(
+                        "RaptureHotbarModule.Instance() returned null, cannot execute pet hotbar action.");
                     LogHelper.PrintUnavailable();
                     return;
                 }
@@ -106,9 +112,10 @@ namespace KeybindsPlus.Executors
                 hotbarModule->ExecuteSlot(&slot);
             });
         }
-        public void ExecuteDutyAction(uint actionId)
+
+        public static void ExecuteDutyAction(uint actionId)
         {
-            Plugin.Framework.RunOnFrameworkThread(() =>
+            Plugin.Framework.Run(() =>
             {
                 var hotbarModule = RaptureHotbarModule.Instance();
                 if (hotbarModule == null)

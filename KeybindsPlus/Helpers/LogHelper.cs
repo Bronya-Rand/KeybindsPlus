@@ -11,8 +11,7 @@ namespace KeybindsPlus.Helpers
         public static void LogInfo(string message) => Plugin.Log.Info(FormatMessage(message));
         public static void LogDebug(string message) => Plugin.Log.Debug(FormatMessage(message));
 
-        public static void PrintError(string message) => Plugin.ChatGui.PrintError(FormatMessage(message));
-        public static void Print(string message) => Plugin.ChatGui.Print(FormatMessage(message));
-        public static void PrintUnavailable() => Plugin.ChatGui.PrintError(FormatMessage("That action is unavailable at this time."));
+        public static void PrintUnavailable() =>
+            Plugin.ChatGui.PrintError(FormatMessage("That action is unavailable at this time."));
     }
 }

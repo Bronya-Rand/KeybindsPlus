@@ -1,3 +1,5 @@
+using System.Threading;
+using System.Threading.Tasks;
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Game.Command;
 using Dalamud.Interface.Windowing;
@@ -10,36 +12,56 @@ using KeybindsPlus.Windows;
 
 namespace KeybindsPlus;
 
-public sealed class Plugin : IDalamudPlugin
+public sealed class Plugin : IAsyncDalamudPlugin
 {
-    [PluginService] internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
-    [PluginService] internal static ICommandManager CommandManager { get; private set; } = null!;
-    [PluginService] internal static IClientState ClientState { get; private set; } = null!;
-    [PluginService] internal static IPluginLog Log { get; private set; } = null!;
-    [PluginService] internal static IKeyState KeyState { get; private set; } = null!;
-    [PluginService] internal static IChatGui ChatGui { get; private set; } = null!;
-    [PluginService] internal static IFramework Framework { get; private set; } = null!;
-    [PluginService] internal static ITargetManager TargetManager { get; private set; } = null!;
-    [PluginService] internal static IPartyList PartyList { get; private set; } = null!;
-    [PluginService] internal static IObjectTable ObjectTable { get; private set; } = null!;
-    [PluginService] internal static IGameGui GameGui { get; private set; } = null!;
+    [PluginService]
+    internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
+
+    [PluginService]
+    internal static ICommandManager CommandManager { get; private set; } = null!;
+
+    [PluginService]
+    internal static IClientState ClientState { get; private set; } = null!;
+
+    [PluginService]
+    internal static IPluginLog Log { get; private set; } = null!;
+
+    [PluginService]
+    internal static IKeyState KeyState { get; private set; } = null!;
+
+    [PluginService]
+    internal static IChatGui ChatGui { get; private set; } = null!;
+
+    [PluginService]
+    internal static IFramework Framework { get; private set; } = null!;
+
+    [PluginService]
+    internal static ITargetManager TargetManager { get; private set; } = null!;
+
+    [PluginService]
+    internal static IPartyList PartyList { get; private set; } = null!;
+
+    [PluginService]
+    internal static IObjectTable ObjectTable { get; private set; } = null!;
 
     private const string CommandName = "/kp";
 
-    public Configuration Configuration { get; init; }
+    public Configuration Configuration { get; private set; } = null!;
 
     public readonly WindowSystem WindowSystem = new(Constants.PluginName);
-    private ConfigWindow ConfigWindow { get; init; }
-    private MainWindow MainWindow { get; init; }
+    private ConfigWindow ConfigWindow { get; set; } = null!;
+    private MainWindow MainWindow { get; set; } = null!;
 
-    public ExternalActionRegistry ExternalActionRegistry { get; }
-    internal IpcService IpcService { get; }
+    public ExternalActionRegistry ExternalActionRegistry { get; private set; } = null!;
+    internal IpcService IpcService { get; private set; } = null!;
 
-    private readonly InputInterceptorService inputInterceptorService;
-    private readonly KeybindDispatchService keybindDispatchService;
+    private InputInterceptorService inputInterceptorService = null!;
+    private KeybindDispatchService keybindDispatchService = null!;
 
-    public Plugin()
+    public Task LoadAsync(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
 
         ExternalActionRegistry = new ExternalActionRegistry();
@@ -51,7 +73,7 @@ public sealed class Plugin : IDalamudPlugin
 
         inputInterceptorService = new InputInterceptorService(Framework);
         inputInterceptorService.IsRecordingPredicate = () =>
-            MainWindow?.KeybindSetModal?.IsListening == true;
+            MainWindow.KeybindSetModal.IsListening;
         inputInterceptorService.OnKeyEvent += HandleKeyDown;
 
         keybindDispatchService = new KeybindDispatchService(Configuration, IpcService);
@@ -67,20 +89,11 @@ public sealed class Plugin : IDalamudPlugin
         PluginInterface.UiBuilder.Draw += WindowSystem.Draw;
         PluginInterface.UiBuilder.OpenConfigUi += ToggleConfigUi;
         PluginInterface.UiBuilder.OpenMainUi += ToggleMainUi;
-    }
-    private bool HandleKeyDown(VirtualKey vkCode, bool isDown)
-    {
-        // If modal is actively listening, feed key event to it
-        if (MainWindow?.KeybindSetModal?.HandleKeyEvent(vkCode, isDown) == true)
-            return true;
 
-        if (keybindDispatchService.HandleKeyEvent(vkCode, isDown))
-            return true;
-
-        return false;
+        return Task.CompletedTask;
     }
 
-    public void Dispose()
+    public ValueTask DisposeAsync()
     {
         IpcService.Dispose();
         keybindDispatchService.Dispose();
@@ -96,7 +109,14 @@ public sealed class Plugin : IDalamudPlugin
         MainWindow.Dispose();
 
         CommandManager.RemoveHandler(CommandName);
+
+        return ValueTask.CompletedTask;
     }
+
+    private bool HandleKeyDown(VirtualKey vkCode, bool isDown) =>
+        // If modal is actively listening, feed key event to it
+        MainWindow.KeybindSetModal.HandleKeyEvent(vkCode, isDown) ||
+        keybindDispatchService.HandleKeyEvent(vkCode, isDown);
 
     private void OnCommand(string command, string args) => MainWindow.Toggle();
     public void ToggleConfigUi() => ConfigWindow.Toggle();
