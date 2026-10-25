@@ -12,15 +12,9 @@ using KeybindsPlus.Models;
 
 namespace KeybindsPlus.Windows.Tabs;
 
-public class PluginsTab
+public class PluginsTab(MainWindow mainWindow)
 {
-    private readonly MainWindow mainWindow;
     private string pluginsSearchText = string.Empty;
-
-    public PluginsTab(MainWindow mainWindow)
-    {
-        this.mainWindow = mainWindow;
-    }
 
     public void Draw()
     {
@@ -35,11 +29,13 @@ public class PluginsTab
         // Ensure all active definitions in ExternalActionRegistry have an entry in Configuration
         foreach (var def in mainWindow.Plugin.ExternalActionRegistry.GetAllDefinitions())
         {
-            if (!mainWindow.Plugin.Configuration.ExternalPluginKeybinds.TryGetValue(def.PluginName, out var pluginActions))
+            if (!mainWindow.Plugin.Configuration.ExternalPluginKeybinds.TryGetValue(
+                    def.PluginName, out var pluginActions))
             {
                 pluginActions = [];
                 mainWindow.Plugin.Configuration.ExternalPluginKeybinds[def.PluginName] = pluginActions;
             }
+
             if (!pluginActions.ContainsKey(def.ActionId))
             {
                 pluginActions[def.ActionId] = new KeybindAssignment { Enabled = true };
@@ -54,7 +50,9 @@ public class PluginsTab
         }
 
         var search = pluginsSearchText;
-        var pluginGroups = new List<(string PluginName, Dictionary<string, KeybindAssignment> Actions, List<(string ActionId, KeybindAssignment Assignment)> MatchingActions)>();
+        var pluginGroups =
+            new List<(string PluginName, Dictionary<string, KeybindAssignment> Actions,
+                List<(string ActionId, KeybindAssignment Assignment)> MatchingActions)>();
 
         foreach (var (pluginName, actions) in mainWindow.Plugin.Configuration.ExternalPluginKeybinds)
         {
@@ -77,11 +75,8 @@ public class PluginsTab
                     kvp.Value.PrimaryKey.GetDisplayString().Contains(search, StringComparison.OrdinalIgnoreCase))
                     return true;
 
-                if (!kvp.Value.SecondaryKey.IsEmpty &&
-                    kvp.Value.SecondaryKey.GetDisplayString().Contains(search, StringComparison.OrdinalIgnoreCase))
-                    return true;
-
-                return false;
+                return !kvp.Value.SecondaryKey.IsEmpty &&
+                       kvp.Value.SecondaryKey.GetDisplayString().Contains(search, StringComparison.OrdinalIgnoreCase);
             }).Select(kvp => (ActionId: kvp.Key, Assignment: kvp.Value)).ToList();
 
             if (matches.Count > 0)
@@ -102,8 +97,8 @@ public class PluginsTab
         {
             var anyActive = actions.Any(kvp => mainWindow.Plugin.ExternalActionRegistry.IsActive(pluginName, kvp.Key));
             var headerTitle = anyActive
-                ? $"{pluginName}###PluginHeader_{pluginName}"
-                : $"{pluginName} (Offline)###PluginHeader_{pluginName}";
+                                  ? $"{pluginName}###PluginHeader_{pluginName}"
+                                  : $"{pluginName} (Offline)###PluginHeader_{pluginName}";
 
             if (ImGui.CollapsingHeader(headerTitle, ImGuiTreeNodeFlags.DefaultOpen))
             {
@@ -119,9 +114,8 @@ public class PluginsTab
 
                     List<string>? actionsToDelete = null;
 
-                    for (var i = 0; i < matchingActions.Count; i++)
+                    foreach (var (actionId, assignment) in matchingActions)
                     {
-                        var (actionId, assignment) = matchingActions[i];
                         var def = mainWindow.Plugin.ExternalActionRegistry.GetDefinition(pluginName, actionId);
                         var isActive = def?.IsActive ?? false;
                         var displayName = def?.DisplayName ?? actionId;
@@ -141,6 +135,7 @@ public class PluginsTab
                         {
                             ImGui.TextColored(ImGuiColors.DalamudGrey, "[Offline]");
                         }
+
                         ImGui.SameLine();
 
                         if (!assignment.Enabled || !isActive)
@@ -158,6 +153,7 @@ public class PluginsTab
                                 ImGui.TextColored(ImGuiColors.DalamudYellow, Constants.GameInputOverrideWarning);
                                 ImGui.Separator();
                             }
+
                             ImGui.TextColored(ImGuiColors.DalamudViolet, $"Plugin: {pluginName}");
                             ImGui.TextColored(ImGuiColors.DalamudGrey, $"Action ID: {actionId}");
                             if (!string.IsNullOrEmpty(def?.Description))
@@ -165,7 +161,8 @@ public class PluginsTab
                                 ImGui.Separator();
                                 ImGui.TextUnformatted(def.Description);
                             }
-                            if (def?.SuggestedDefault != null && !def.SuggestedDefault.IsEmpty)
+
+                            if (def?.SuggestedDefault is { IsEmpty: false })
                             {
                                 ImGui.Separator();
                                 ImGui.TextDisabled($"Suggested Default: {def.SuggestedDefault.GetDisplayString()}");
@@ -204,6 +201,7 @@ public class PluginsTab
                                     assignment.Enabled = enabled;
                                     mainWindow.Plugin.Configuration.Save();
                                 }
+
                                 if (ImGui.IsItemHovered())
                                     ImGui.SetTooltip(isActive ? "Toggle keybind on/off" : "Plugin is offline");
                             }
@@ -216,10 +214,11 @@ public class PluginsTab
                                     actionsToDelete ??= [];
                                     actionsToDelete.Add(actionId);
                                 }
+
                                 if (ImGui.IsItemHovered())
                                     ImGui.SetTooltip("Remove saved keybind for this offline action");
                             }
-                            else if (def?.SuggestedDefault != null && !def.SuggestedDefault.IsEmpty && assignment.PrimaryKey.IsEmpty)
+                            else if (def?.SuggestedDefault is { IsEmpty: false } && assignment.PrimaryKey.IsEmpty)
                             {
                                 ImGui.SameLine();
                                 if (ImGuiComponents.IconButton(FontAwesomeIcon.Magic))
@@ -227,8 +226,10 @@ public class PluginsTab
                                     assignment.PrimaryKey = def.SuggestedDefault;
                                     mainWindow.Plugin.Configuration.Save();
                                 }
+
                                 if (ImGui.IsItemHovered())
-                                    ImGui.SetTooltip($"Apply suggested default: {def.SuggestedDefault.GetDisplayString()}");
+                                    ImGui.SetTooltip(
+                                        $"Apply suggested default: {def.SuggestedDefault.GetDisplayString()}");
                             }
                         }
                     }
@@ -239,11 +240,13 @@ public class PluginsTab
                         {
                             actions.Remove(delActionId);
                         }
+
                         if (actions.Count == 0)
                         {
                             emptyPluginsToRemove ??= [];
                             emptyPluginsToRemove.Add(pluginName);
                         }
+
                         mainWindow.Plugin.Configuration.Save();
                     }
                 }
@@ -256,6 +259,7 @@ public class PluginsTab
             {
                 mainWindow.Plugin.Configuration.ExternalPluginKeybinds.Remove(emptyPlugin);
             }
+
             mainWindow.Plugin.Configuration.Save();
         }
     }

@@ -17,7 +17,8 @@ namespace KeybindsPlus
         public Dictionary<HotbarKeybinds, KeybindAssignment> HotbarKeybinds { get; set; } = [];
         public Dictionary<TargetingActions, KeybindAssignment> TargetingKeybinds { get; set; } = [];
         public Dictionary<string, Dictionary<string, KeybindAssignment>> ExternalPluginKeybinds { get; set; } = [];
-        public bool HideUnsupportedKeybinds { get; set; } = false;
+        public bool HideUnsupportedKeybinds { get; set; }
+
         public void Save()
         {
             PruneDefaults(ShortcutKeybinds);
@@ -26,12 +27,14 @@ namespace KeybindsPlus
             PruneDefaults(TargetingKeybinds);
             Plugin.PluginInterface.SavePluginConfig(this);
         }
+
         private static void PruneDefaults<TKey>(Dictionary<TKey, KeybindAssignment> dict) where TKey : notnull
         {
             var toRemove = dict
-                .Where(kvp => !kvp.Value.Enabled && kvp.Value.PrimaryKey.IsEmpty && kvp.Value.SecondaryKey.IsEmpty)
-                .Select(kvp => kvp.Key)
-                .ToList();
+                           .Where(kvp => !kvp.Value.Enabled && kvp.Value.PrimaryKey.IsEmpty &&
+                                         kvp.Value.SecondaryKey.IsEmpty)
+                           .Select(kvp => kvp.Key)
+                           .ToList();
             foreach (var key in toRemove)
                 dict.Remove(key);
         }

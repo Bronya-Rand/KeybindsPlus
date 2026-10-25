@@ -17,6 +17,7 @@ namespace KeybindsPlus.Services
         private readonly NativeMethods.WndSubclassProc subclassDelegate;
 
         public delegate bool KeyEventHandler(VirtualKey key, bool isDown);
+
         public event KeyEventHandler? OnKeyEvent;
         public Func<bool>? IsRecordingPredicate { get; set; }
 
@@ -46,43 +47,46 @@ namespace KeybindsPlus.Services
             {
                 case NativeMethods.WM_KEYDOWN:
                 case NativeMethods.WM_SYSKEYDOWN:
+                {
+                    var vkShort = (ushort)(wParam.ToInt64() & 0xFFFF);
+                    var vkCode = (VirtualKey)vkShort;
+                    var isRepeat = (lParam.ToInt64() & 0x40000000) != 0;
+
+                    var condition = (NativeMethods.GetForegroundWindow() == gameHwnd &&
+                                     (isRecording || !ImGui.GetIO().WantCaptureKeyboard));
+
+                    if (condition)
                     {
-                        var vkShort = (ushort)(wParam.ToInt64() & 0xFFFF);
-                        var vkCode = (VirtualKey)vkShort;
-                        var isRepeat = (lParam.ToInt64() & 0x40000000) != 0;
+                        var isHandled = false;
+                        if (!isRepeat)
+                            isHandled = OnKeyEvent?.Invoke(vkCode, true) ?? false;
 
-                        var condition = (NativeMethods.GetForegroundWindow() == gameHwnd && (isRecording || !ImGui.GetIO().WantCaptureKeyboard));
-
-                        if (condition)
-                        {
-                            var isHandled = false;
-                            if (!isRepeat)
-                                isHandled = OnKeyEvent?.Invoke(vkCode, true) ?? false;
-
-                            // Consume input if:
-                            // 1. The plugin is recording keybinds
-                            // 2. Pressed key matched an active keybind (isHandled = true)
-                            if (isRecording || isHandled)
-                                return IntPtr.Zero;
-                        }
-                        break;
+                        // Consume input if:
+                        // 1. The plugin is recording keybinds
+                        // 2. Pressed key matched an active keybind (isHandled = true)
+                        if (isRecording || isHandled)
+                            return IntPtr.Zero;
                     }
+
+                    break;
+                }
 
                 case NativeMethods.WM_KEYUP:
                 case NativeMethods.WM_SYSKEYUP:
+                {
+                    var vkShort = (ushort)(wParam.ToInt64() & 0xFFFF);
+                    var vkCode = (VirtualKey)vkShort;
+
+                    if (NativeMethods.GetForegroundWindow() == gameHwnd)
                     {
-                        var vkShort = (ushort)(wParam.ToInt64() & 0xFFFF);
-                        var vkCode = (VirtualKey)vkShort;
+                        var isHandled = OnKeyEvent?.Invoke(vkCode, false) ?? false;
 
-                        if (NativeMethods.GetForegroundWindow() == gameHwnd)
-                        {
-                            var isHandled = OnKeyEvent?.Invoke(vkCode, false) ?? false;
-
-                            if (isRecording || isHandled)
-                                return IntPtr.Zero;
-                        }
-                        break;
+                        if (isRecording || isHandled)
+                            return IntPtr.Zero;
                     }
+
+                    break;
+                }
 
                 case NativeMethods.WM_MBUTTONDOWN:
                     if (HandleMouseButton(VirtualKey.MBUTTON, true, isRecording))
@@ -94,25 +98,26 @@ namespace KeybindsPlus.Services
                     break;
 
                 case NativeMethods.WM_XBUTTONDOWN:
-                    {
-                        var vkShort = (ushort)((wParam.ToInt64() >> 16) & 0xFFFF);
-                        var vkCode = vkShort == 1 ? VirtualKey.XBUTTON1 : VirtualKey.XBUTTON2;
-                        if (HandleMouseButton(vkCode, true, isRecording))
-                            return 1; // Processed WM_XBUTTONDOWN returns TRUE
-                        break;
-                    }
+                {
+                    var vkShort = (ushort)((wParam.ToInt64() >> 16) & 0xFFFF);
+                    var vkCode = vkShort == 1 ? VirtualKey.XBUTTON1 : VirtualKey.XBUTTON2;
+                    if (HandleMouseButton(vkCode, true, isRecording))
+                        return 1; // Processed WM_XBUTTONDOWN returns TRUE
+                    break;
+                }
                 case NativeMethods.WM_XBUTTONUP:
-                    {
-                        var vkShort = (ushort)((wParam.ToInt64() >> 16) & 0xFFFF);
-                        var vkCode = vkShort == 1 ? VirtualKey.XBUTTON1 : VirtualKey.XBUTTON2;
-                        if (HandleMouseButton(vkCode, false, isRecording))
-                            return 1;
-                        break;
-                    }
+                {
+                    var vkShort = (ushort)((wParam.ToInt64() >> 16) & 0xFFFF);
+                    var vkCode = vkShort == 1 ? VirtualKey.XBUTTON1 : VirtualKey.XBUTTON2;
+                    if (HandleMouseButton(vkCode, false, isRecording))
+                        return 1;
+                    break;
+                }
             }
 
             return NativeMethods.DefSubclassProc(hWnd, msg, wParam, lParam);
         }
+
         public void Dispose()
         {
             NativeMethods.RemoveWindowSubclass(gameHwnd, subclassDelegate, SubclassId);
@@ -123,7 +128,7 @@ namespace KeybindsPlus.Services
         {
             // Don't intercept mouse input if ImGui is capturing it
             var condition = NativeMethods.GetForegroundWindow() == gameHwnd
-                && (isRecording || !ImGui.GetIO().WantCaptureMouse);
+                            && (isRecording || !ImGui.GetIO().WantCaptureMouse);
 
             if (!condition) return false;
 

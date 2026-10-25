@@ -17,6 +17,7 @@ namespace KeybindsPlus.Interop
                 LogHelper.LogError("PronounModule.Instance() returned null, cannot get pronoun placeholder.");
                 return null;
             }
+
             var pronounObject = pronounModule->ResolvePlaceholder(placeholder, 0, 0);
             var pronounObjectPtr = (nint)pronounObject;
             return Plugin.ObjectTable.CreateObjectReference(pronounObjectPtr);

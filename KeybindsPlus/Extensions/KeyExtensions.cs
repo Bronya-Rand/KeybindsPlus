@@ -21,6 +21,7 @@ public static class KeyExtensions
 
         return key != VirtualKey.NO_KEY ? $"VK_{(ushort)key:X2}" : "Not Bound";
     }
+
     public static bool TryResolveVirtualKey(string keyName, out VirtualKey resolvedKey)
     {
         resolvedKey = VirtualKey.NO_KEY;

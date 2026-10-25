@@ -15,11 +15,11 @@ public class MainWindow : Window, IDisposable
     internal readonly Plugin Plugin;
 
     internal const ImGuiTableFlags TableFlags =
-            ImGuiTableFlags.Borders |
-            ImGuiTableFlags.RowBg |
-            ImGuiTableFlags.Resizable |
-            ImGuiTableFlags.ScrollY |
-            ImGuiTableFlags.SizingStretchProp;
+        ImGuiTableFlags.Borders |
+        ImGuiTableFlags.RowBg |
+        ImGuiTableFlags.Resizable |
+        ImGuiTableFlags.ScrollY |
+        ImGuiTableFlags.SizingStretchProp;
 
     internal readonly KeybindEditorModal KeybindEditorModal;
     internal readonly KeybindConflictService ConflictService;

@@ -10,7 +10,7 @@ namespace KeybindsPlus.Interop
     /// <summary>
     /// Interop class for handling chat operations in the game.
     /// </summary>
-    public unsafe class ChatInterop
+    public static unsafe class ChatInterop
     {
         public static void SendMessageUnsafe(byte[] message)
         {
@@ -18,18 +18,24 @@ namespace KeybindsPlus.Interop
             UIModule.Instance()->ProcessChatBoxEntry(mes);
             mes->Dtor(true);
         }
+
         public static void SendMessage(string message)
         {
             var bytes = Encoding.UTF8.GetBytes(message);
-            if (bytes.Length == 0)
-                throw new ArgumentException("Message cannot be empty.", nameof(message));
-            if (bytes.Length > 500)
-                throw new ArgumentException("Message is too long.", nameof(message));
+            switch (bytes.Length)
+            {
+                case 0:
+                    throw new ArgumentException("Message cannot be empty.", nameof(message));
+                case > 500:
+                    throw new ArgumentException("Message is too long.", nameof(message));
+            }
+
             if (message.Length != SanitizeText(message).Length)
                 throw new ArgumentException("Message contains invalid characters.", nameof(message));
 
             SendMessageUnsafe(bytes);
         }
+
         public static bool IsGameTextInputActive()
         {
             try
@@ -51,9 +57,14 @@ namespace KeybindsPlus.Interop
                         return true;
                 }
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
+
             return false;
         }
+
         private static string SanitizeText(string text)
         {
             var csText = Utf8String.FromString(text);

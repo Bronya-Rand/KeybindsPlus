@@ -10,31 +10,16 @@ using KeybindsPlus.Models;
 
 namespace KeybindsPlus.Windows.Tabs;
 
-public class GameKeybindsTab<TKey> where TKey : notnull
+public class GameKeybindsTab<TKey>(
+    MainWindow mainWindow,
+    string tabTitle,
+    string tableId,
+    IEnumerable<TKey> items,
+    Dictionary<TKey, KeybindAssignment> storage,
+    Func<TKey, ActionMetadata> getMetadata)
+    where TKey : notnull
 {
-    private readonly MainWindow mainWindow;
-    private readonly string tabTitle;
-    private readonly string tableId;
-    private readonly IEnumerable<TKey> items;
-    private readonly Dictionary<TKey, KeybindAssignment> storage;
-    private readonly Func<TKey, ActionMetadata> getMetadata;
     private string searchText = string.Empty;
-
-    public GameKeybindsTab(
-        MainWindow mainWindow,
-        string tabTitle,
-        string tableId,
-        IEnumerable<TKey> items,
-        Dictionary<TKey, KeybindAssignment> storage,
-        Func<TKey, ActionMetadata> getMetadata)
-    {
-        this.mainWindow = mainWindow;
-        this.tabTitle = tabTitle;
-        this.tableId = tableId;
-        this.items = items;
-        this.storage = storage;
-        this.getMetadata = getMetadata;
-    }
 
     public void Draw()
     {
@@ -72,7 +57,8 @@ public class GameKeybindsTab<TKey> where TKey : notnull
                     return true;
 
                 if (!assignment.SecondaryKey.IsEmpty &&
-                    assignment.SecondaryKey.GetDisplayString().Contains(searchValue, StringComparison.OrdinalIgnoreCase))
+                    assignment.SecondaryKey.GetDisplayString()
+                              .Contains(searchValue, StringComparison.OrdinalIgnoreCase))
                     return true;
             }
 
@@ -176,6 +162,7 @@ public class GameKeybindsTab<TKey> where TKey : notnull
                     assignment.Enabled = enabled;
                     mainWindow.Plugin.Configuration.Save();
                 }
+
                 if (ImGui.IsItemHovered())
                     ImGui.SetTooltip("Toggle to allow the plugin to manage this game keybind.");
             }

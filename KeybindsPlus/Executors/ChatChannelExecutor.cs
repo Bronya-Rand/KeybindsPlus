@@ -34,10 +34,12 @@ namespace KeybindsPlus.Executors
                 target->Dtor(true);
             });
         }
+
         public void ReplyTell()
         {
             // TODO: Implement Chat Swap To Tell
         }
+
         public void RotateLinkshell(RotateMode mode) =>
             Plugin.Framework.Run(() =>
             {
@@ -48,8 +50,10 @@ namespace KeybindsPlus.Executors
                     LogHelper.PrintUnavailable();
                     return;
                 }
+
                 module->RotateLinkshellHistory((int)mode);
             });
+
         public void RotateCrossworldLinkshell(RotateMode mode) =>
             Plugin.Framework.Run(() =>
             {
@@ -60,6 +64,7 @@ namespace KeybindsPlus.Executors
                     LogHelper.PrintUnavailable();
                     return;
                 }
+
                 module->RotateCrossLinkshellHistory((int)mode);
             });
     }

@@ -75,6 +75,7 @@ namespace KeybindsPlus.Executors
                             {
                                 await Task.Delay((int)(waitSec * 1000), token);
                             }
+
                             continue;
                         }
 
@@ -84,10 +85,12 @@ namespace KeybindsPlus.Executors
                         if (match.Success)
                         {
                             var numStr = match.Groups[1].Value.Replace(',', '.');
-                            if (float.TryParse(numStr, NumberStyles.Float, CultureInfo.InvariantCulture, out var suffixSec) && suffixSec > 0)
+                            if (float.TryParse(numStr, NumberStyles.Float, CultureInfo.InvariantCulture,
+                                               out var suffixSec) && suffixSec > 0)
                             {
                                 delayMs = (int)(suffixSec * 1000);
                             }
+
                             line = WaitSuffixRegex.Replace(line, "").Trim();
                         }
 
@@ -150,11 +153,7 @@ namespace KeybindsPlus.Executors
             }
         }
 
-        public void Dispose()
-        {
-            CancelMacro();
-            GC.SuppressFinalize(this);
-        }
+        public void Dispose() => CancelMacro();
 
         [GeneratedRegex(@"<wait\.(\d+(?:[\.,]\d+)?)>", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
         private static partial Regex XivWaitMacro();

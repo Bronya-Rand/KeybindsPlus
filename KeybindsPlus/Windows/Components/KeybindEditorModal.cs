@@ -15,14 +15,16 @@ namespace KeybindsPlus.Windows.Components
         private KeybindEntry? editingEntry;
 
         #region Editor Fields
+
         private string editingName = string.Empty;
         private string editingDescription = string.Empty;
         private KeybindActionType editingActionType = KeybindActionType.Command;
         private string editingCommand = string.Empty;
         private string editingMacroText = string.Empty;
+
         #endregion
 
-        public Action<KeybindEntry>? OnSave { get; set; }
+        public Action<KeybindEntry>? OnSave { get; init; }
 
         private string? GetValidationMessage()
         {
@@ -35,7 +37,7 @@ namespace KeybindsPlus.Windows.Components
             return null;
         }
 
-        private bool canSave => GetValidationMessage() == null;
+        private bool CanSave => GetValidationMessage() == null;
 
         public void Open(KeybindEntry? entry = null)
         {
@@ -117,7 +119,7 @@ namespace KeybindsPlus.Windows.Components
 
             // Save and Cancel Buttons
             var validationMsg = GetValidationMessage();
-            using (ImRaii.Disabled(!canSave))
+            using (ImRaii.Disabled(!CanSave))
             {
                 if (ImGui.Button("Save", new Vector2(100, 0)))
                 {
@@ -143,12 +145,13 @@ namespace KeybindsPlus.Windows.Components
                         editingEntry.MacroText = editingMacroText.Trim();
                         OnSave?.Invoke(editingEntry);
                     }
+
                     isOpen = false;
                 }
             }
 
             // Validation Tooltip on disabled Save button
-            if (!canSave && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+            if (!CanSave && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
             {
                 using var tooltip = ImRaii.Tooltip();
                 ImGui.TextColored(ImGuiColors.DalamudYellow, validationMsg ?? "Cannot save.");
@@ -176,6 +179,7 @@ namespace KeybindsPlus.Windows.Components
                     {
                         editingActionType = actionType;
                     }
+
                     if (isSelected)
                         ImGui.SetItemDefaultFocus();
                 }
@@ -194,8 +198,8 @@ namespace KeybindsPlus.Windows.Components
 
                 case KeybindActionType.Macro:
                     var lineCount = string.IsNullOrEmpty(editingMacroText)
-                        ? 0
-                        : editingMacroText.Split('\n').Length;
+                                        ? 0
+                                        : editingMacroText.Split('\n').Length;
 
                     ImGui.Text("Macro Text:");
                     ImGui.SameLine();

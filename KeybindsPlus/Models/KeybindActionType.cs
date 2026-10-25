@@ -12,6 +12,7 @@ namespace KeybindsPlus.Models
         /// </summary>
         Macro = 1,
     }
+
     public static class KeybindActionTypeExtensions
     {
         public static string ToFriendlyString(this KeybindActionType actionType)

@@ -15,9 +15,6 @@ namespace KeybindsPlus.Services
     /// <param name="registry">The external action registry for plugin keybinds.</param>
     internal unsafe class KeybindConflictService(Configuration configuration, ExternalActionRegistry? registry = null)
     {
-        private readonly Configuration configuration = configuration;
-        private readonly ExternalActionRegistry? registry = registry;
-
         public KeyConflictInfo? FindConflict(KeyChord chord, object currentItem, int currentSlot)
         {
             if (chord.IsEmpty) return null;
@@ -27,24 +24,28 @@ namespace KeybindsPlus.Services
             {
                 if (ReferenceEquals(currentItem, entry))
                 {
-                    // Check across slots within the same entry
-                    if (currentSlot == 1 && !entry.SecondaryKey.IsEmpty && entry.SecondaryKey.Equals(chord))
-                        return new KeyConflictInfo
-                        {
-                            OwnerName = entry.Name,
-                            Slot = 2,
-                            IsNativeGameBind = false,
-                            UnbindAction = () => entry.SecondaryKey.Clear()
-                        };
-                    if (currentSlot == 2 && !entry.PrimaryKey.IsEmpty && entry.PrimaryKey.Equals(chord))
-                        return new KeyConflictInfo
-                        {
-                            OwnerName = entry.Name,
-                            Slot = 1,
-                            IsNativeGameBind = false,
-                            UnbindAction = () => entry.PrimaryKey.Clear()
-                        };
-                    continue;
+                    switch (currentSlot)
+                    {
+                        // Check across slots within the same entry
+                        case 1 when !entry.SecondaryKey.IsEmpty && entry.SecondaryKey.Equals(chord):
+                            return new KeyConflictInfo
+                            {
+                                OwnerName = entry.Name,
+                                Slot = 2,
+                                IsNativeGameBind = false,
+                                UnbindAction = () => entry.SecondaryKey.Clear()
+                            };
+                        case 2 when !entry.PrimaryKey.IsEmpty && entry.PrimaryKey.Equals(chord):
+                            return new KeyConflictInfo
+                            {
+                                OwnerName = entry.Name,
+                                Slot = 1,
+                                IsNativeGameBind = false,
+                                UnbindAction = () => entry.PrimaryKey.Clear()
+                            };
+                        default:
+                            continue;
+                    }
                 }
 
                 if (!entry.PrimaryKey.IsEmpty && entry.PrimaryKey.Equals(chord))
@@ -100,23 +101,27 @@ namespace KeybindsPlus.Services
 
                     if (ReferenceEquals(currentItem, assignment))
                     {
-                        if (currentSlot == 1 && !assignment.SecondaryKey.IsEmpty && assignment.SecondaryKey.Equals(chord))
-                            return new KeyConflictInfo
-                            {
-                                OwnerName = friendlyName,
-                                Slot = 2,
-                                IsNativeGameBind = false,
-                                UnbindAction = () => assignment.SecondaryKey.Clear()
-                            };
-                        if (currentSlot == 2 && !assignment.PrimaryKey.IsEmpty && assignment.PrimaryKey.Equals(chord))
-                            return new KeyConflictInfo
-                            {
-                                OwnerName = friendlyName,
-                                Slot = 1,
-                                IsNativeGameBind = false,
-                                UnbindAction = () => assignment.PrimaryKey.Clear()
-                            };
-                        continue;
+                        switch (currentSlot)
+                        {
+                            case 1 when !assignment.SecondaryKey.IsEmpty && assignment.SecondaryKey.Equals(chord):
+                                return new KeyConflictInfo
+                                {
+                                    OwnerName = friendlyName,
+                                    Slot = 2,
+                                    IsNativeGameBind = false,
+                                    UnbindAction = () => assignment.SecondaryKey.Clear()
+                                };
+                            case 2 when !assignment.PrimaryKey.IsEmpty && assignment.PrimaryKey.Equals(chord):
+                                return new KeyConflictInfo
+                                {
+                                    OwnerName = friendlyName,
+                                    Slot = 1,
+                                    IsNativeGameBind = false,
+                                    UnbindAction = () => assignment.PrimaryKey.Clear()
+                                };
+                            default:
+                                continue;
+                        }
                     }
 
                     if (!assignment.PrimaryKey.IsEmpty && assignment.PrimaryKey.Equals(chord))
@@ -173,8 +178,10 @@ namespace KeybindsPlus.Services
                         UnbindAction = () => { }
                     };
             }
+
             return null;
         }
+
         public static bool IsGameKeybindConflict(KeyChord chord) => CheckGameKeybindConflict(chord) != null;
 
         private static KeyConflictInfo? CheckAssignmentConflict<TKey>(
@@ -190,23 +197,27 @@ namespace KeybindsPlus.Services
 
                 if (ReferenceEquals(currentItem, assignment) || Equals(currentItem, key))
                 {
-                    if (currentSlot == 1 && !assignment.SecondaryKey.IsEmpty && assignment.SecondaryKey.Equals(chord))
-                        return new KeyConflictInfo
-                        {
-                            OwnerName = friendlyName,
-                            Slot = 2,
-                            IsNativeGameBind = false,
-                            UnbindAction = () => assignment.SecondaryKey.Clear()
-                        };
-                    if (currentSlot == 2 && !assignment.PrimaryKey.IsEmpty && assignment.PrimaryKey.Equals(chord))
-                        return new KeyConflictInfo
-                        {
-                            OwnerName = friendlyName,
-                            Slot = 1,
-                            IsNativeGameBind = false,
-                            UnbindAction = () => assignment.PrimaryKey.Clear()
-                        };
-                    continue;
+                    switch (currentSlot)
+                    {
+                        case 1 when !assignment.SecondaryKey.IsEmpty && assignment.SecondaryKey.Equals(chord):
+                            return new KeyConflictInfo
+                            {
+                                OwnerName = friendlyName,
+                                Slot = 2,
+                                IsNativeGameBind = false,
+                                UnbindAction = () => assignment.SecondaryKey.Clear()
+                            };
+                        case 2 when !assignment.PrimaryKey.IsEmpty && assignment.PrimaryKey.Equals(chord):
+                            return new KeyConflictInfo
+                            {
+                                OwnerName = friendlyName,
+                                Slot = 1,
+                                IsNativeGameBind = false,
+                                UnbindAction = () => assignment.PrimaryKey.Clear()
+                            };
+                        default:
+                            continue;
+                    }
                 }
 
                 if (!assignment.PrimaryKey.IsEmpty && assignment.PrimaryKey.Equals(chord))

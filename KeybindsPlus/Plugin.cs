@@ -14,16 +14,35 @@ namespace KeybindsPlus;
 
 public sealed class Plugin : IAsyncDalamudPlugin
 {
-    [PluginService] internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
-    [PluginService] internal static ICommandManager CommandManager { get; private set; } = null!;
-    [PluginService] internal static IClientState ClientState { get; private set; } = null!;
-    [PluginService] internal static IPluginLog Log { get; private set; } = null!;
-    [PluginService] internal static IKeyState KeyState { get; private set; } = null!;
-    [PluginService] internal static IChatGui ChatGui { get; private set; } = null!;
-    [PluginService] internal static IFramework Framework { get; private set; } = null!;
-    [PluginService] internal static ITargetManager TargetManager { get; private set; } = null!;
-    [PluginService] internal static IPartyList PartyList { get; private set; } = null!;
-    [PluginService] internal static IObjectTable ObjectTable { get; private set; } = null!;
+    [PluginService]
+    internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
+
+    [PluginService]
+    internal static ICommandManager CommandManager { get; private set; } = null!;
+
+    [PluginService]
+    internal static IClientState ClientState { get; private set; } = null!;
+
+    [PluginService]
+    internal static IPluginLog Log { get; private set; } = null!;
+
+    [PluginService]
+    internal static IKeyState KeyState { get; private set; } = null!;
+
+    [PluginService]
+    internal static IChatGui ChatGui { get; private set; } = null!;
+
+    [PluginService]
+    internal static IFramework Framework { get; private set; } = null!;
+
+    [PluginService]
+    internal static ITargetManager TargetManager { get; private set; } = null!;
+
+    [PluginService]
+    internal static IPartyList PartyList { get; private set; } = null!;
+
+    [PluginService]
+    internal static IObjectTable ObjectTable { get; private set; } = null!;
 
     private const string CommandName = "/kp";
 
@@ -42,7 +61,7 @@ public sealed class Plugin : IAsyncDalamudPlugin
     public Task LoadAsync(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        
+
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
 
         ExternalActionRegistry = new ExternalActionRegistry();
@@ -70,7 +89,7 @@ public sealed class Plugin : IAsyncDalamudPlugin
         PluginInterface.UiBuilder.Draw += WindowSystem.Draw;
         PluginInterface.UiBuilder.OpenConfigUi += ToggleConfigUi;
         PluginInterface.UiBuilder.OpenMainUi += ToggleMainUi;
-        
+
         return Task.CompletedTask;
     }
 
@@ -90,13 +109,14 @@ public sealed class Plugin : IAsyncDalamudPlugin
         MainWindow.Dispose();
 
         CommandManager.RemoveHandler(CommandName);
-        
-        return ValueTask.CompletedTask; 
+
+        return ValueTask.CompletedTask;
     }
-    
+
     private bool HandleKeyDown(VirtualKey vkCode, bool isDown) =>
         // If modal is actively listening, feed key event to it
-        MainWindow.KeybindSetModal.HandleKeyEvent(vkCode, isDown) || keybindDispatchService.HandleKeyEvent(vkCode, isDown);
+        MainWindow.KeybindSetModal.HandleKeyEvent(vkCode, isDown) ||
+        keybindDispatchService.HandleKeyEvent(vkCode, isDown);
 
     private void OnCommand(string command, string args) => MainWindow.Toggle();
     public void ToggleConfigUi() => ConfigWindow.Toggle();

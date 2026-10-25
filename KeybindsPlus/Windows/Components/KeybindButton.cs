@@ -19,7 +19,7 @@ public static class KeybindButton
     /// <param name="slotNumber">1 for Keybind 1, 2 for Keybind 2.</param>
     /// <param name="onSave">Callback to persist changes.</param>
     /// <param name="onClick">Optional override for left-click.</param>
-    public static bool Draw(
+    public static void Draw(
         string id,
         KeyChord keyChord,
         string entryName,
@@ -71,7 +71,5 @@ public static class KeybindButton
                 ImGui.TextUnformatted("Clear (Set to Not Bound)");
             }
         }
-
-        return clicked;
     }
 }

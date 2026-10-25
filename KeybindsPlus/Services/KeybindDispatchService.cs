@@ -51,7 +51,9 @@ namespace KeybindsPlus.Services
 
             // Check Custom Keybinds
             var customKeybind = configuration.Keybinds.FirstOrDefault(k => k.Matches(
-                key, isLCtrlPressed, isRCtrlPressed, isLAltPressed, isRAltPressed, isLShiftPressed, isRShiftPressed));
+                                                                          key, isLCtrlPressed, isRCtrlPressed,
+                                                                          isLAltPressed, isRAltPressed, isLShiftPressed,
+                                                                          isRShiftPressed));
             if (customKeybind != null)
             {
                 DispatchCustomKeybind(customKeybind);
@@ -64,7 +66,8 @@ namespace KeybindsPlus.Services
                 foreach (var (actionId, assignment) in actions)
                 {
                     if (!assignment.Enabled) continue;
-                    if (assignment.Matches(key, isLCtrlPressed, isRCtrlPressed, isLAltPressed, isRAltPressed, isLShiftPressed, isRShiftPressed))
+                    if (assignment.Matches(key, isLCtrlPressed, isRCtrlPressed, isLAltPressed, isRAltPressed,
+                                           isLShiftPressed, isRShiftPressed))
                     {
                         ipcService?.NotifyActionTriggered(pluginName, actionId);
                         return true;
@@ -76,7 +79,8 @@ namespace KeybindsPlus.Services
             foreach (var (action, assignment) in configuration.TargetingKeybinds)
             {
                 if (!action.GetMetadata().IsSupported) continue;
-                if (assignment.Matches(key, isLCtrlPressed, isRCtrlPressed, isLAltPressed, isRAltPressed, isLShiftPressed, isRShiftPressed))
+                if (assignment.Matches(key, isLCtrlPressed, isRCtrlPressed, isLAltPressed, isRAltPressed,
+                                       isLShiftPressed, isRShiftPressed))
                 {
                     targetingExecutor.Execute(action);
                     return true;
@@ -87,7 +91,8 @@ namespace KeybindsPlus.Services
             foreach (var (agent, assignment) in configuration.ShortcutKeybinds)
             {
                 if (!agent.GetMetadata().IsSupported) continue;
-                if (assignment.Matches(key, isLCtrlPressed, isRCtrlPressed, isLAltPressed, isRAltPressed, isLShiftPressed, isRShiftPressed))
+                if (assignment.Matches(key, isLCtrlPressed, isRCtrlPressed, isLAltPressed, isRAltPressed,
+                                       isLShiftPressed, isRShiftPressed))
                 {
                     var (agentIds, _) = agent.GetInfo();
                     NativeActionExecutor.ExecuteWindow(agentIds);
@@ -99,7 +104,8 @@ namespace KeybindsPlus.Services
             foreach (var (channel, assignment) in configuration.ChatKeybinds)
             {
                 if (!channel.GetMetadata().IsSupported) continue;
-                if (assignment.Matches(key, isLCtrlPressed, isRCtrlPressed, isLAltPressed, isRAltPressed, isLShiftPressed, isRShiftPressed))
+                if (assignment.Matches(key, isLCtrlPressed, isRCtrlPressed, isLAltPressed, isRAltPressed,
+                                       isLShiftPressed, isRShiftPressed))
                 {
                     DispatchChatKeybind(channel);
                     return true;
@@ -110,7 +116,8 @@ namespace KeybindsPlus.Services
             foreach (var (hotbar, assignment) in configuration.HotbarKeybinds)
             {
                 if (!hotbar.GetMetadata().IsSupported) continue;
-                if (assignment.Matches(key, isLCtrlPressed, isRCtrlPressed, isLAltPressed, isRAltPressed, isLShiftPressed, isRShiftPressed))
+                if (assignment.Matches(key, isLCtrlPressed, isRCtrlPressed, isLAltPressed, isRAltPressed,
+                                       isLShiftPressed, isRShiftPressed))
                 {
                     var (hotbarId, slotId, _) = hotbar.GetInfo();
                     switch (hotbar)
@@ -126,12 +133,14 @@ namespace KeybindsPlus.Services
                             NativeActionExecutor.ExecuteHotbarSlot(hotbarId, slotId);
                             break;
                     }
+
                     return true;
                 }
             }
 
             return false;
         }
+
         private void DispatchCustomKeybind(KeybindEntry entry)
         {
             switch (entry.ActionType)
@@ -146,7 +155,8 @@ namespace KeybindsPlus.Services
                     throw new InvalidOperationException($"Unknown action type: {entry.ActionType}");
             }
         }
-        private void DispatchChatKeybind(ChatChannels channel)
+
+        private static void DispatchChatKeybind(ChatChannels channel)
         {
             switch (channel)
             {
@@ -177,10 +187,7 @@ namespace KeybindsPlus.Services
                     break;
             }
         }
-        public void Dispose()
-        {
-            chatCommandExecutor.Dispose();
-            GC.SuppressFinalize(this);
-        }
+
+        public void Dispose() => chatCommandExecutor.Dispose();
     }
 }

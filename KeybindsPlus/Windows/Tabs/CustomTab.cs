@@ -11,15 +11,9 @@ using KeybindsPlus.Models;
 
 namespace KeybindsPlus.Windows.Tabs;
 
-public class CustomTab
+public class CustomTab(MainWindow mainWindow)
 {
-    private readonly MainWindow mainWindow;
     private string customSearchText = string.Empty;
-
-    public CustomTab(MainWindow mainWindow)
-    {
-        this.mainWindow = mainWindow;
-    }
 
     public void Draw()
     {
@@ -31,6 +25,7 @@ public class CustomTab
         {
             mainWindow.KeybindEditorModal.Open();
         }
+
         if (ImGui.IsItemHovered())
             ImGui.SetTooltip("Create a new custom command or macro keybind");
 
@@ -62,19 +57,15 @@ public class CustomTab
                 entry.PrimaryKey.GetDisplayString().Contains(search, StringComparison.OrdinalIgnoreCase))
                 return true;
 
-            if (!entry.SecondaryKey.IsEmpty &&
-                entry.SecondaryKey.GetDisplayString().Contains(search, StringComparison.OrdinalIgnoreCase))
-                return true;
-
-            return false;
+            return !entry.SecondaryKey.IsEmpty &&
+                   entry.SecondaryKey.GetDisplayString().Contains(search, StringComparison.OrdinalIgnoreCase);
         }).ToList();
 
         if (filtered.Count == 0)
         {
-            if (mainWindow.Plugin.Configuration.Keybinds.Count == 0)
-                ImGui.TextDisabled("No custom keybinds configured. Click '+' above to create one.");
-            else
-                ImGui.TextDisabled("No custom keybinds match your search.");
+            ImGui.TextDisabled(mainWindow.Plugin.Configuration.Keybinds.Count == 0
+                                   ? "No custom keybinds configured. Click '+' above to create one."
+                                   : "No custom keybinds match your search.");
             return;
         }
 
@@ -88,9 +79,8 @@ public class CustomTab
         ImGui.TableSetupColumn("", ImGuiTableColumnFlags.WidthFixed, 80f);
         ImGui.TableHeadersRow();
 
-        for (var i = 0; i < filtered.Count; i++)
+        foreach (var entry in filtered)
         {
-            var entry = filtered[i];
             using var rowId = ImRaii.PushId(entry.Id.ToString());
 
             ImGui.TableNextRow();
@@ -101,13 +91,14 @@ public class CustomTab
 
             // Column 1: Keybind 1
             ImGui.TableNextColumn();
+            var entry1 = entry;
             mainWindow.DrawKeybindSlot(
                 entry.Name,
                 entry.PrimaryKey,
                 1,
                 entry,
                 entry.Enabled,
-                updated => entry.PrimaryKey = updated);
+                updated => entry1.PrimaryKey = updated);
 
             // Column 2: Keybind 2
             ImGui.TableNextColumn();
@@ -129,6 +120,7 @@ public class CustomTab
                     entry.Enabled = editingIsEnabled;
                     mainWindow.Plugin.Configuration.Save();
                 }
+
                 if (ImGui.IsItemHovered())
                     ImGui.SetTooltip("Toggle keybind on/off");
 
@@ -137,6 +129,7 @@ public class CustomTab
                 {
                     mainWindow.KeybindEditorModal.Open(entry);
                 }
+
                 if (ImGui.IsItemHovered())
                     ImGui.SetTooltip("Edit keybind");
 
@@ -146,6 +139,7 @@ public class CustomTab
                     mainWindow.Plugin.Configuration.Keybinds.Remove(entry);
                     mainWindow.Plugin.Configuration.Save();
                 }
+
                 if (ImGui.IsItemHovered())
                     ImGui.SetTooltip("Delete keybind");
             }
@@ -158,8 +152,8 @@ public class CustomTab
 
         // Type Icon: Terminal for Command, Cogs for Macro
         var (icon, iconColor) = entry.ActionType == KeybindActionType.Command
-            ? (FontAwesomeIcon.Terminal, ImGuiColors.DalamudViolet)
-            : (FontAwesomeIcon.Cogs, ImGuiColors.ParsedGreen);
+                                    ? (FontAwesomeIcon.Terminal, ImGuiColors.DalamudViolet)
+                                    : (FontAwesomeIcon.Cogs, ImGuiColors.ParsedGreen);
 
         using (ImRaii.PushFont(UiBuilder.IconFont))
         {
